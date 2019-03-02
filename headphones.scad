@@ -31,7 +31,7 @@ module hexgrid(r, off, nx, ny, h) {
 	}
 }
 
-module stator() union(){
+module stator(showMesh) union() {
 	height = 6;
 	activeDiameter = 72;
 	wallThickness = (0.4*4);
@@ -64,7 +64,7 @@ module stator() union(){
 	}
 
     // mesh
-	if (true) translate([0,0,5.5]) %cylinder(r=activeDiameter/2, h=0.5);
+	if (showMesh) translate([0,0,5.5]) %cylinder(r=activeDiameter/2, h=0.5);
 }
 
 module meshRetainer() {
@@ -111,12 +111,12 @@ module diaphragm() {
 
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
-		stator();
+		stator(true);
 		translate([0,0,3]) meshRetainer();
 	}
 	translate([0,0,5.5]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
-		stator();
+		stator(true);
 		translate([0,0,3]) meshRetainer();
 	}
 }
@@ -139,6 +139,12 @@ module cans() color([10,1,0]) {
 		// Drill holes
 		translate([(od/2) - (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
 		translate([(-od/2) + (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
+		
+		// Drill
+		n = 4;
+		for (i = [0 : (n-1)]) {
+			rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
+		}
 	}
 	
 	translate([0,0,h-2]) difference() {
@@ -165,14 +171,14 @@ module wires() {
 	}
 }
 
-module band() color([0.5, 0.5, 0.5]) {
+module gimbal() color([0.5, 0.5, 0.5]) {
 	thickness = 1;
-	width = 8;
-	id = 104;
+	width = 10;
+	id = 105;
 	
 	bandLength = ((2*3.1415926 * (id/2)) /2) + width;
 	
-	echo("band width & length");
+	echo("gimbal width & length");
 	echo(bandLength);
 	echo(width);
 	
@@ -190,6 +196,36 @@ module band() color([0.5, 0.5, 0.5]) {
 	}
 }
 
+module band() color([0.5, 0.5, 0.5]) {
+	thickness = 1;
+	width = 10;
+	id = 166;
+	
+	bandLength = ((2*3.1415926 * (id/2)) /2);
+	
+	echo("band width & length");
+	echo(bandLength);
+	echo(width);
+	
+	// shaped bent metal
+	rotate([90+15,0,0]) translate([0,0,(-width/2)+width/2]) resize([168, 70]) {
+		difference() {
+			cylinder(r=(id/2)+thickness, h=width);
+			translate([0,0,-0.5]) cylinder(r=id/2, h=width+1);
+			
+			translate([0,-id/2,width/2]) cube([id+thickness+1, id+thickness+1, width+1], center=true);
+		}
+	}
+	rotate([90-15,0,0]) translate([0,0,(-width/2)-width/2]) resize([168, 70]) {
+		difference() {
+			cylinder(r=(id/2)+thickness, h=width);
+			translate([0,0,-0.5]) cylinder(r=id/2, h=width+1);
+			
+			translate([0,-id/2,width/2]) cube([id+thickness+1, id+thickness+1, width+1], center=true);
+		}
+	}
+}
+
 module earspeaker(left) {
 	union() {
 		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
@@ -203,7 +239,7 @@ module earspeaker(left) {
 	}
 	if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
 		
-	translate([0,0,3.5]) rotate([180,0,0]) band();
+	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
 		
 	translate([1,40,-4]) rotate([0,90,90]) wires();
 }
@@ -224,21 +260,32 @@ module innerRing() {
 	}
 }
 
-if(false) difference() {
-	rotate([180,0,0]) union() {
-		earspeaker();
-	}
-	
-	// todo plate to retain stator and earpad
-	
-	//translate([0,-50,-25]) cube([50,50,50]);
-}
+part = 0;
 
-if (true) difference () {
+if (part == 0) difference () {
 	union() {
+		translate([0,0,58]) band();
 		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
 		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
 	}
 	
 	//translate([-500, 0, -500]) cube([1000,1000,1000]);
 }
+
+// 3d printed
+if (part == 1) stator(false);		// x4
+if (part == 2) meshRetainer();	// x4
+if (part == 3) spacer(false);		// x2
+if (part == 4) spacer(true);		// x2
+if (part == 5) dustSpacer();		// x8
+if (part == 6) innerRing();		// x2
+	
+// wood
+if (part == 7) cans();			// x2
+	
+// Sew
+if (part == 8) earpad();			// x2
+
+// Bent metal
+if (part == 9) gimbal();			// x2
+if (part == 10) band();
