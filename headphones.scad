@@ -3,10 +3,16 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-//$fn=64;
+//$fn=128;
 
 //ear
 //resize([40, 70]) cylinder(r=1, h=20, $fn=64);
+
+// TODO redesign to accomodate mylar film available
+mylarFilmWidth = 55;
+
+// mylar to check design fits material
+//translate([0,0,8]) %cube([55, 55*1.618, 0.0001], center=true);
 
 module hexgrid(r, off, nx, ny, h) {
 	a = r * cos(180/6);
@@ -31,36 +37,64 @@ module hexgrid(r, off, nx, ny, h) {
 	}
 }
 
+// hull() ?
+module roundedRectangle(width, height, depth, radius) {
+	translate([-width/2, -height/2, 0])
+	translate([radius, radius, 0]) minkowski() {
+		cube([width - (radius*2), height - (radius*2), depth]);
+		cylinder(r=radius, h=0.0000001);
+	}
+}
+module roundedRectangleSphereoid(width, height, depth, radius) {
+	translate([-width/2, -height/2, 0])
+	translate([radius, radius, 0]) minkowski() {
+		cube([width - (radius*2), height - (radius*2), depth]);
+		sphere(r=radius, h=0.0000001);
+	}
+}
+
+primaryWidth = 55;
+primaryHeight = primaryWidth * 1.618;
+
 module stator(showMesh) union() {
-	height = 6;
+	width = primaryWidth;
+	height = primaryHeight;
+	depth = 6;
+	roundedRadius = 24;
+	
 	activeDiameter = 72;
 	wallThickness = (0.4*4);
 	meshThickness = 0.5;
 	outerRingWidth = 80 - (activeDiameter + (meshThickness*2) + wallThickness);
 	od = activeDiameter + outerRingWidth + (meshThickness*2) + wallThickness;
 	
+	// hex mesh support
     if (true) difference() {
-        cylinder(r=activeDiameter/2, h=height-meshThickness);
-		translate([0,0,-0.5]) hexgrid(16, wallThickness, 5, 5, height+1);
+        roundedRectangle(width, height, depth-meshThickness, roundedRadius);
+		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshThickness)+1);
+		
+		// TODO experiment, test if this is rigid enough
+		//translate([0,0,-((depth*2) +(12/2)) +3  ]) roundedRectangleSphereoid(width+4, height+4, depth, 12);
     }
+	// Inner frame
+	if (true) difference() {
+		roundedRectangle(width, height, depth-meshThickness, roundedRadius);
+		translate([0,0,-0.5]) resize([width-wallThickness, height-wallThickness]) roundedRectangle(width, height, (depth-meshThickness)+1, roundedRadius);
+	}
 
-    if (true) difference() {
-        cylinder(r=(activeDiameter)/2, h=height-meshThickness);
-        translate([0,0,-0.5]) cylinder(r=(activeDiameter - wallThickness)/2, h=height+1);
+	if (true) difference() {
+		off = 6;
+		thick = 5;
+		resize([(width+off), (height+off)]) roundedRectangle(width, height, depth, roundedRadius);
+		translate([0,0,-0.5]) resize([(width+off)-thick, (height+off)-thick]) roundedRectangle(width, height, depth+1, roundedRadius);
 	}
 	
 	if (true) difference() {
-		cylinder(r=(od)/2, h=height);
-		translate([0,0,-0.5]) cylinder(r=(activeDiameter + (meshThickness*4))/2, h=height+meshThickness+1);
+		off = 2;
+        resize([(width+off), (height+off)]) roundedRectangle(width, height, depth/2, roundedRadius);
+        translate([0,0,-0.5]) roundedRectangle(width, height, (depth/2)+1, roundedRadius);
 		
-		for (i = [0 : 5]) {
-			rotate([0,0,(60 * i) + 30]) translate([0,(80 + 1)/2,-0.5]) cylinder(r=5/2, h=height+1);
-		}
-	}
-	if (true) difference() {
-		cylinder(r=(activeDiameter + (meshThickness*4) + wallThickness)/2, h=height/2);
-		translate([0,0,-0.5]) cylinder(r=(activeDiameter-wallThickness)/2, h=height+1);
-		translate([0,(activeDiameter + (meshThickness*4) + wallThickness)/2,(height/2)-0.5]) cube([5, 5, height], center=true);
+		translate([0,(height/2) + 0.5]) cube([5, 5, depth+1], center=true);
 	}
 
     // mesh
@@ -74,17 +108,26 @@ module meshRetainer() {
 	}
 }
 
+module roundedProfile(width, height, wall, depth, radius) {
+	difference() {
+		roundedRectangle(width, height, depth, radius);
+		translate([0,0,-0.5]) resize([width-(wall*2), height-(wall*2)]) roundedRectangle(width, height, depth+1, radius);
+	}
+}
+
 module spacer(slot) {
-	h = 0.5;
+	width = primaryWidth;
+	height = primaryHeight;
+	roundedRadius = 24;
+	
+	depth = 0.5;
 	id = 70;
 	od = 73.5;
 	difference() {
-		cylinder(r=od/2, h=h);
-		translate([0,0,-0.5]) cylinder(r=id/2, h=h+1);
+		roundedProfile(width, height, 3.5, depth, roundedRadius);
 
 		if (slot) translate([0,0,0.25]) difference() {
-			cylinder(r=((id+((od-id)/2)) +0.5) /2, h=0.5);
-			translate([0,0,-0.5]) cylinder(r=((id+((od-id)/2)) -0.5) /2, h=1);
+			resize([width - 3.5, height-3.5]) roundedProfile(width, height, 0.5, depth, roundedRadius);
 		}
 	}
 }
@@ -198,7 +241,7 @@ module gimbal() color([0.5, 0.5, 0.5]) {
 
 module band() color([0.5, 0.5, 0.5]) {
 	thickness = 1;
-	width = 10;
+	width = 24;
 	id = 166;
 	
 	bandLength = ((2*3.1415926 * (id/2)) /2);
@@ -208,7 +251,7 @@ module band() color([0.5, 0.5, 0.5]) {
 	echo(width);
 	
 	// shaped bent metal
-	rotate([90+15,0,0]) translate([0,0,(-width/2)+width/2]) resize([168, 70]) {
+	rotate([90,0,0]) translate([0,0,-width/2]) resize([168, 70]) {
 		difference() {
 			cylinder(r=(id/2)+thickness, h=width);
 			translate([0,0,-0.5]) cylinder(r=id/2, h=width+1);
@@ -216,14 +259,59 @@ module band() color([0.5, 0.5, 0.5]) {
 			translate([0,-id/2,width/2]) cube([id+thickness+1, id+thickness+1, width+1], center=true);
 		}
 	}
-	rotate([90-15,0,0]) translate([0,0,(-width/2)-width/2]) resize([168, 70]) {
+}
+
+module bandBase() {
+	bandWidth = 24;
+	gimbalWidth = 10;
+	
+	gimbalOd = 105+1;
+	
+	translate([-gimbalWidth/2,0,0]) difference() {
+		translate([0,-bandWidth/2,0]) cube([gimbalWidth, bandWidth, 16]);
+		translate([-0.5,0,(-gimbalOd/2) + 4]) rotate([0,90,0]) cylinder(r=gimbalOd/2, h=gimbalWidth+1);
+		
+		translate([-3 + 1,(-bandWidth/2) - 0.5,16-8]) cube([3, bandWidth+1, 10]);
+		
+		// M5 threaded
+		translate([-3,-8,12]) rotate([0,90,0]) cylinder(r=5/2, h=20);
+		translate([-3,8,12]) rotate([0,90,0]) cylinder(r=5/2, h=20);
+	}
+}
+
+module band_v2() color([0.5, 0.5, 0.5]) {
+	thickness = 1;
+	width = 24;
+	id = 166;
+	
+	bandLength = ((2*3.1415926 * (id/2)) /2);
+	
+	echo("band width & length");
+	echo(bandLength);
+	echo(width);
+	
+	
+	// shaped bent metal
+	rotate([90,0,0]) translate([0,0,-width/2])  {
 		difference() {
-			cylinder(r=(id/2)+thickness, h=width);
-			translate([0,0,-0.5]) cylinder(r=id/2, h=width+1);
-			
-			translate([0,-id/2,width/2]) cube([id+thickness+1, id+thickness+1, width+1], center=true);
+			rotate_extrude(angle = 90, convexity = 10) translate([id/2, 0, 0]) circle(r = 1);
+			translate([-100,-200,-100]) cube([200, 200, 200]);
 		}
 	}
+	rotate([90,0,0]) translate([0,0,width/2])  {
+		difference() {
+			rotate_extrude(angle = 90, convexity = 10) translate([id/2, 0, 0]) circle(r = 1);
+			translate([-100,-200,-100]) cube([200, 200, 200]);
+		}
+	}
+}
+
+module bandBase_v2() {
+	
+	// TODO upright cylinder, threaded base, top attaches to band wires
+	
+	translate([0,-24/2,3]) cylinder(r=10/2, h=16);
+	translate([0,24/2,3]) cylinder(r=10/2, h=16);
 }
 
 module earspeaker(left) {
@@ -238,7 +326,8 @@ module earspeaker(left) {
 		translate([0,0,-4.8]) innerRing();
 	}
 	if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
-		
+	
+	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
 		
 	translate([1,40,-4]) rotate([0,90,90]) wires();
@@ -260,7 +349,7 @@ module innerRing() {
 	}
 }
 
-part = 0;
+part = 4;
 
 if (part == 0) difference () {
 	union() {
@@ -288,4 +377,7 @@ if (part == 8) earpad();			// x2
 
 // Bent metal
 if (part == 9) gimbal();			// x2
-if (part == 10) band();
+if (part == 10) band();			// x1
+	
+// Machined
+if (part == 11) bandBase();		// x2
