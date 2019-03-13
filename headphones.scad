@@ -3,7 +3,7 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-//$fn=128;
+$fn=128;
 
 //ear
 //resize([40, 70]) cylinder(r=1, h=20, $fn=64);
@@ -37,19 +37,26 @@ module hexgrid(r, off, nx, ny, h) {
 	}
 }
 
-// hull() ?
-module roundedRectangle(width, height, depth, radius) {
-	translate([-width/2, -height/2, 0])
-	translate([radius, radius, 0]) minkowski() {
-		cube([width - (radius*2), height - (radius*2), depth]);
-		cylinder(r=radius, h=0.0000001);
-	}
-}
-module roundedRectangleSphereoid(width, height, depth, radius) {
-	translate([-width/2, -height/2, 0])
-	translate([radius, radius, 0]) minkowski() {
-		cube([width - (radius*2), height - (radius*2), depth]);
-		sphere(r=radius, h=0.0000001);
+module basicProfile(x, y, height) {
+	function curve(x) = [x, -(1.618 * sqrt(9-(x*x))) / sqrt(x+9)];
+	function curvep(x) = [x, (1.618 * sqrt(9-(x*x))) / sqrt(x+9)];
+
+	focalPoint = [0,0];
+	steps = 30;
+
+	linear_extrude(height = height, convexity = 10) 
+	resize([x, y]) rotate([0,0,90])
+	for(step = [-100 : 100]) {
+		polygon(
+			points= [
+				focalPoint,
+				curve(step/steps),
+				curve((step-1)/steps),
+				curvep(step/steps),
+				curvep((step-1)/steps)
+			],
+			paths=[[3,4,0,1,2,0]]
+		);
 	}
 }
 
@@ -60,7 +67,6 @@ module stator(showMesh) union() {
 	width = primaryWidth;
 	height = primaryHeight;
 	depth = 6;
-	roundedRadius = 24;
 	
 	activeDiameter = 72;
 	wallThickness = (0.4*4);
@@ -70,97 +76,90 @@ module stator(showMesh) union() {
 	
 	// hex mesh support
     if (true) difference() {
-        roundedRectangle(width, height, depth-meshThickness, roundedRadius);
+		basicProfile(width, height, depth-meshThickness);
 		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshThickness)+1);
-		
-		// TODO experiment, test if this is rigid enough
-		//translate([0,0,-((depth*2) +(12/2)) +3  ]) roundedRectangleSphereoid(width+4, height+4, depth, 12);
     }
 	// Inner frame
 	if (true) difference() {
-		roundedRectangle(width, height, depth-meshThickness, roundedRadius);
-		translate([0,0,-0.5]) resize([width-wallThickness, height-wallThickness]) roundedRectangle(width, height, (depth-meshThickness)+1, roundedRadius);
+		basicProfile(width, height, depth-meshThickness);
+		translate([0,0,-0.5]) resize([width-wallThickness, height-wallThickness]) basicProfile(width, height, (depth-meshThickness)+1);
 	}
 
 	if (true) difference() {
 		off = 6;
 		thick = 5;
-		resize([(width+off), (height+off)]) roundedRectangle(width, height, depth, roundedRadius);
-		translate([0,0,-0.5]) resize([(width+off)-thick, (height+off)-thick]) roundedRectangle(width, height, depth+1, roundedRadius);
+		resize([(width+off), (height+off)]) basicProfile(width, height, depth);
+		translate([0,0,-0.5]) resize([(width+off)-thick, (height+off)-thick]) basicProfile(width, height, depth+1);
 	}
 	
 	if (true) difference() {
 		off = 2;
-        resize([(width+off), (height+off)]) roundedRectangle(width, height, depth/2, roundedRadius);
-        translate([0,0,-0.5]) roundedRectangle(width, height, (depth/2)+1, roundedRadius);
+        resize([(width+off), (height+off)]) basicProfile(width, height, depth/2);
+        translate([0,0,-0.5]) basicProfile(width, height, (depth/2)+1);
 		
 		translate([0,(height/2) + 0.5]) cube([5, 5, depth+1], center=true);
 	}
 
     // mesh
-	if (showMesh) translate([0,0,5.5]) %cylinder(r=activeDiameter/2, h=0.5);
+	if (showMesh) translate([0,0,5.5]) %basicProfile(width, height, 0.5);
 }
 
 module meshRetainer() {
+	width = primaryWidth + 0.7;
+	height = primaryHeight + 0.7;
+	
 	difference() {
-		cylinder(r=73.5/2, h=3);
-		translate([0,0,-0.5]) cylinder(r=(73.5-1)/2, h=3+1);
-	}
-}
-
-module roundedProfile(width, height, wall, depth, radius) {
-	difference() {
-		roundedRectangle(width, height, depth, radius);
-		translate([0,0,-0.5]) resize([width-(wall*2), height-(wall*2)]) roundedRectangle(width, height, depth+1, radius);
+		basicProfile(width, height, 3);
+		translate([0,0,-0.5]) basicProfile(width-0.5, height-0.5, 3+1);
 	}
 }
 
 module spacer(slot) {
 	width = primaryWidth;
 	height = primaryHeight;
-	roundedRadius = 24;
 	
 	depth = 0.5;
 	id = 70;
 	od = 73.5;
 	difference() {
-		roundedProfile(width, height, 3.5, depth, roundedRadius);
-
+		basicProfile(width, height, depth);
+		translate([0,0,-0.5]) basicProfile(width - 3.5, height - 3.5, depth+1);
+		
 		if (slot) translate([0,0,0.25]) difference() {
-			resize([width - 3.5, height-3.5]) roundedProfile(width, height, 0.5, depth, roundedRadius);
+			basicProfile(width - 3.5/2, height - 3.5/2, depth);
+			translate([0,0,-0.5]) basicProfile((width - 3.5/2) - 1, (height - 3.5/2) - 1, depth+1);
 		}
 	}
 }
 
 module dustSpacer() {
+	width = primaryWidth;
+	height = primaryHeight;
+	
 	h = 0.5;
-	id = 70;
-	od = 80;
 	difference() {
-		cylinder(r=od/2, h=h);
-		translate([0,0,-0.5]) cylinder(r=id/2, h=h+1);
-		
-		for (i = [0 : 5]) {
-			rotate([0,0,(60 * i) + 30]) translate([0,(80 + 1)/2,-0.5]) cylinder(r=5/2, h=h+1);
-		}
+		basicProfile(width, height, h);
+		translate([0,0,-0.5]) basicProfile(width-5, height-5, h+1);
 	}
 }
 
 module diaphragm() {
+	width = primaryWidth;
+	height = primaryHeight;
 	spacer(true);
-	if (true) translate([0,0,0.5]) %cylinder(r=73.5/2, h=0.01);
+	if (true) translate([0,0,0.5]) %basicProfile(width, height, 0.01);
 	translate([0,0,0.51]) spacer(false);
 }
 
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
 		stator(true);
-		translate([0,0,3]) meshRetainer();
+		//translate([0,0,3]) meshRetainer();
 	}
 	translate([0,0,5.5]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
 		stator(true);
-		translate([0,0,3]) meshRetainer();
+		//translate([0,0,3]) meshRetainer();
 	}
 }
 
@@ -316,16 +315,16 @@ module bandBase_v2() {
 
 module earspeaker(left) {
 	union() {
-		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
-		translate([0,0,-.6]) dustSpacer();
+		//translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
+		//translate([0,0,-.6]) dustSpacer();
 		driver();
-		translate([0,0,12.2]) dustSpacer();
-		translate([0,0,12.8]) dustSpacer();		// outer fabric
-		translate([0,0,-3.5]) cans();
+		//translate([0,0,12.2]) dustSpacer();
+		//translate([0,0,12.8]) dustSpacer();		// outer fabric
+		//translate([0,0,-3.5]) cans();
 		
-		translate([0,0,-4.8]) innerRing();
+		//translate([0,0,-4.8]) innerRing();
 	}
-	if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
+	//if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
@@ -349,13 +348,18 @@ module innerRing() {
 	}
 }
 
-part = 4;
+/*color("red") difference() {
+	basicProfile(55, 55*1.618, 5);
+	translate([0,0,-0.5]) basicProfile(55 - 4, (55*1.618) - 4, 5+1);
+}*/
+
+part = 0;
 
 if (part == 0) difference () {
 	union() {
 		translate([0,0,58]) band();
-		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
-		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
+		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,80]) earspeaker(false);
+		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,100]) earspeaker(true);
 	}
 	
 	//translate([-500, 0, -500]) cube([1000,1000,1000]);
@@ -368,6 +372,7 @@ if (part == 3) spacer(false);		// x2
 if (part == 4) spacer(true);		// x2
 if (part == 5) dustSpacer();		// x8
 if (part == 6) innerRing();		// x2
+if (part == 12) diaphragm();		// x2
 	
 // wood
 if (part == 7) cans();			// x2
