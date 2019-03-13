@@ -133,8 +133,8 @@ module spacer(slot) {
 }
 
 module dustSpacer() {
-	width = primaryWidth;
-	height = primaryHeight;
+	width = primaryWidth + 6;
+	height = primaryHeight + 6;
 	
 	h = 0.5;
 	difference() {
@@ -154,12 +154,12 @@ module diaphragm() {
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
 		stator(true);
-		//translate([0,0,3]) meshRetainer();
+		translate([0,0,3]) meshRetainer();
 	}
 	translate([0,0,5.5]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
 		stator(true);
-		//translate([0,0,3]) meshRetainer();
+		translate([0,0,3]) meshRetainer();
 	}
 }
 
@@ -278,53 +278,18 @@ module bandBase() {
 	}
 }
 
-module band_v2() color([0.5, 0.5, 0.5]) {
-	thickness = 1;
-	width = 24;
-	id = 166;
-	
-	bandLength = ((2*3.1415926 * (id/2)) /2);
-	
-	echo("band width & length");
-	echo(bandLength);
-	echo(width);
-	
-	
-	// shaped bent metal
-	rotate([90,0,0]) translate([0,0,-width/2])  {
-		difference() {
-			rotate_extrude(angle = 90, convexity = 10) translate([id/2, 0, 0]) circle(r = 1);
-			translate([-100,-200,-100]) cube([200, 200, 200]);
-		}
-	}
-	rotate([90,0,0]) translate([0,0,width/2])  {
-		difference() {
-			rotate_extrude(angle = 90, convexity = 10) translate([id/2, 0, 0]) circle(r = 1);
-			translate([-100,-200,-100]) cube([200, 200, 200]);
-		}
-	}
-}
-
-module bandBase_v2() {
-	
-	// TODO upright cylinder, threaded base, top attaches to band wires
-	
-	translate([0,-24/2,3]) cylinder(r=10/2, h=16);
-	translate([0,24/2,3]) cylinder(r=10/2, h=16);
-}
-
 module earspeaker(left) {
 	union() {
-		//translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
-		//translate([0,0,-.6]) dustSpacer();
+		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
+		translate([0,0,-.6]) dustSpacer();
 		driver();
-		//translate([0,0,12.2]) dustSpacer();
-		//translate([0,0,12.8]) dustSpacer();		// outer fabric
-		//translate([0,0,-3.5]) cans();
+		translate([0,0,12.2]) dustSpacer();
+		translate([0,0,12.8]) dustSpacer();		// outer fabric
+		if (false) translate([0,0,-3.5]) cans();
 		
-		//translate([0,0,-4.8]) innerRing();
+		if (false) translate([0,0,-4.8]) innerRing();
 	}
-	//if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
+	if (false) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
@@ -348,11 +313,6 @@ module innerRing() {
 	}
 }
 
-/*color("red") difference() {
-	basicProfile(55, 55*1.618, 5);
-	translate([0,0,-0.5]) basicProfile(55 - 4, (55*1.618) - 4, 5+1);
-}*/
-
 part = 0;
 
 if (part == 0) difference () {
@@ -372,7 +332,6 @@ if (part == 3) spacer(false);		// x2
 if (part == 4) spacer(true);		// x2
 if (part == 5) dustSpacer();		// x8
 if (part == 6) innerRing();		// x2
-if (part == 12) diaphragm();		// x2
 	
 // wood
 if (part == 7) cans();			// x2
@@ -386,3 +345,9 @@ if (part == 10) band();			// x1
 	
 // Machined
 if (part == 11) bandBase();		// x2
+	
+
+// Assemblies
+if (part == 12) diaphragm();
+if (part == 13) earspeaker();
+if (part == 14) driver();
