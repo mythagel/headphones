@@ -3,7 +3,7 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-$fn=128;
+//$fn=128;
 
 //ear
 //resize([40, 70]) cylinder(r=1, h=20, $fn=64);
@@ -68,11 +68,8 @@ module stator(showMesh) union() {
 	height = primaryHeight;
 	depth = 6;
 	
-	activeDiameter = 72;
 	wallThickness = (0.4*4);
 	meshThickness = 0.5;
-	outerRingWidth = 80 - (activeDiameter + (meshThickness*2) + wallThickness);
-	od = activeDiameter + outerRingWidth + (meshThickness*2) + wallThickness;
 	
 	// hex mesh support
     if (true) difference() {
@@ -82,19 +79,19 @@ module stator(showMesh) union() {
 	// Inner frame
 	if (true) difference() {
 		basicProfile(width, height, depth-meshThickness);
-		translate([0,0,-0.5]) resize([width-wallThickness, height-wallThickness]) basicProfile(width, height, (depth-meshThickness)+1);
+		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshThickness)+1);
 	}
 
 	if (true) difference() {
 		off = 6;
 		thick = 5;
-		resize([(width+off), (height+off)]) basicProfile(width, height, depth);
-		translate([0,0,-0.5]) resize([(width+off)-thick, (height+off)-thick]) basicProfile(width, height, depth+1);
+		basicProfile(width+off, height+off, depth);
+		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
 	}
 	
 	if (true) difference() {
 		off = 2;
-        resize([(width+off), (height+off)]) basicProfile(width, height, depth/2);
+        basicProfile(width+off, height+off, depth/2);
         translate([0,0,-0.5]) basicProfile(width, height, (depth/2)+1);
 		
 		translate([0,(height/2) + 0.5]) cube([5, 5, depth+1], center=true);
@@ -125,9 +122,9 @@ module spacer(slot) {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - 3.5, height - 3.5, depth+1);
 		
-		if (slot) translate([0,0,0.25]) difference() {
-			basicProfile(width - 3.5/2, height - 3.5/2, depth);
-			translate([0,0,-0.5]) basicProfile((width - 3.5/2) - 1, (height - 3.5/2) - 1, depth+1);
+		if (slot) translate([0,0,0.3]) difference() {
+			basicProfile((width - 3.5/2) + 0.5, (height - 3.5/2) + 0.5, depth);
+			translate([0,0,-0.5]) basicProfile((width - 3.5/2) - 0.5, (height - 3.5/2) - 0.5, depth+1);
 		}
 	}
 }
@@ -163,35 +160,36 @@ module driver() {
 	}
 }
 
-module cans() color([10,1,0]) {
+module cans() /*color([10,1,0])*/ {
+	
+	width = primaryWidth + 20;
+	height = primaryHeight + 20;
 	h = 19;
-	od = 100;
-	id = 80;
-	open_d = 70;
+
 	difference() {
 		union() {
-			translate([0,0,h-5]) cylinder(r1=od/2, r2=id/2, h=5);
-			cylinder(r=od/2, h=h-5);
+			translate([0,0,h-5]) hull() {
+				basicProfile(width, height, 0.0001);
+				translate([0,0,5]) basicProfile(primaryWidth+4, primaryHeight+4, 0.0001);
+			}
+			basicProfile(width, height, h-5);
 		}
-		translate([0,0,-0.5]) cylinder(r=id/2, h=h+2);
+		// Inner hole
+		translate([0,0,-0.5]) basicProfile(primaryWidth+6.1, primaryHeight+6.1, h-1.5);
+		translate([0,0,h-3]) basicProfile(primaryWidth-2, primaryHeight-2, h-2);
 		
 		// cut with chisel
-		translate([-2.5,(id/2)-2,-3]) cube([5,5,h]);
+		//translate([-2.5,(id/2)-2,-3]) cube([5,5,h]);
 		
 		// Drill holes
-		translate([(od/2) - (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
-		translate([(-od/2) + (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
+		//translate([(od/2) - (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
+		//translate([(-od/2) + (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
 		
 		// Drill
 		n = 4;
 		for (i = [0 : (n-1)]) {
-			rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
+			//rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
 		}
-	}
-	
-	translate([0,0,h-2]) difference() {
-		cylinder(r=id/2, h=2);
-		translate([0,0,-0.5]) cylinder(r=open_d/2, h=3);
 	}
 }
 
@@ -285,7 +283,7 @@ module earspeaker(left) {
 		driver();
 		translate([0,0,12.2]) dustSpacer();
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
-		if (false) translate([0,0,-3.5]) cans();
+		if (true) translate([0,0,-3.5]) cans();
 		
 		if (false) translate([0,0,-4.8]) innerRing();
 	}
@@ -299,21 +297,21 @@ module earspeaker(left) {
 
 module innerRing() {
 	difference() {
-			union() {
-				translate([0,0,0]) cylinder(r=100/2, h=1);
-				translate([0,0,1]) cylinder(r=80/2, h=2.5);
-			}
-			translate([0,0,-0.5]) cylinder(r=70/2, h=5);
-			
-			// M3 wood screws
-			n = 4;
-			for (i = [0 : (n-1)]) {
-				rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
-			}
+		union() {
+			translate([0,0,0]) cylinder(r=100/2, h=1);
+			translate([0,0,1]) cylinder(r=80/2, h=2.5);
+		}
+		translate([0,0,-0.5]) cylinder(r=70/2, h=5);
+		
+		// M3 wood screws
+		n = 4;
+		for (i = [0 : (n-1)]) {
+			rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
+		}
 	}
 }
 
-part = 0;
+part = 13;
 
 if (part == 0) difference () {
 	union() {
@@ -348,6 +346,11 @@ if (part == 11) bandBase();		// x2
 	
 
 // Assemblies
-if (part == 12) diaphragm();
-if (part == 13) earspeaker();
-if (part == 14) driver();
+difference() {
+	union() {
+		if (part == 12) diaphragm();
+		if (part == 13) earspeaker();
+		if (part == 14) driver();
+	}
+	translate([0,0,-50]) cube([500, 500, 500]);
+}
