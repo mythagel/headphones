@@ -6,7 +6,7 @@
 //$fn=128;
 
 //ear
-//resize([40, 70]) cylinder(r=1, h=20, $fn=64);
+//translate([0,0,-25]) resize([40, 70]) cylinder(r=1, h=20, $fn=64);
 
 mylarFilmWidth = 55;
 
@@ -168,7 +168,6 @@ module driver() {
 }
 
 module cans() color([10,1,0]) {
-	
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	h = 19;
@@ -201,11 +200,13 @@ module cans() color([10,1,0]) {
 }
 
 module earpad() {
-	difference() {
-		d = 100;
-		h = 30;
-		cylinder(r=d/2, h=h);
-		translate([0,0,-0.5]) cylinder(r=(d-30)/2, h=h+1);
+	width = primaryWidth + 20;
+	height = primaryHeight + 20;
+	h = 30;
+	
+	rotate([0,0,180]) difference() {
+		basicProfile(width, height, h);
+		translate([0,0,-0.5]) basicProfile(width-30, height-30, h+1);
 		translate([0,0,16]) rotate([0,8,0]) cylinder(r=100, h=30);
 	}
 }
@@ -294,7 +295,7 @@ module earspeaker(left) {
 		
 		if (true) translate([0,0,-4.8]) innerRing();
 	}
-	if (false) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
+	if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
@@ -303,22 +304,25 @@ module earspeaker(left) {
 }
 
 module innerRing() {
+	width = primaryWidth + 20;
+	height = primaryHeight + 20;
+	
 	difference() {
 		union() {
-			translate([0,0,0]) cylinder(r=100/2, h=1);
-			translate([0,0,1]) cylinder(r=80/2, h=2.5);
+			basicProfile(width, height, 1);
+			translate([0,0,1]) basicProfile(primaryWidth+5.9, primaryHeight+5.9, 2.5);
 		}
-		translate([0,0,-0.5]) cylinder(r=70/2, h=5);
+		translate([0,0,-0.5]) basicProfile(primaryWidth-2, primaryHeight-2, 5);
 		
 		// M3 wood screws
-		n = 4;
-		for (i = [0 : (n-1)]) {
-			rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
-		}
+		translate([(width/2) - 6.5, -height/4,-0.5]) cylinder(r=3/2, h=5);
+		translate([(-width/2) + 6.5, -height/4,-0.5]) cylinder(r=3/2, h=5);
+		translate([(width/2) - 11.5, height/4,-0.5]) cylinder(r=3/2, h=5);
+		translate([(-width/2) + 11.5, height/4,-0.5]) cylinder(r=3/2, h=5);
 	}
 }
 
-part = 6;
+part = 0;
 
 if (part == 0) difference () {
 	union() {
