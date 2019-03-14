@@ -8,7 +8,6 @@
 //ear
 //resize([40, 70]) cylinder(r=1, h=20, $fn=64);
 
-// TODO redesign to accomodate mylar film available
 mylarFilmWidth = 55;
 
 // mylar to check design fits material
@@ -85,6 +84,13 @@ module stator(showMesh) union() {
 	if (true) difference() {
 		off = 6;
 		thick = 5;
+		basicProfile(width+off, height+off, (depth-meshThickness));
+		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshThickness)+1);
+	}
+
+	if (true) difference() {
+		off = 6;
+		thick = 4;
 		basicProfile(width+off, height+off, depth);
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
 	}
@@ -106,25 +112,24 @@ module meshRetainer() {
 	height = primaryHeight + 0.7;
 	
 	difference() {
-		basicProfile(width, height, 3);
+		basicProfile(width, height, 2.5);
 		translate([0,0,-0.5]) basicProfile(width-0.5, height-0.5, 3+1);
 	}
 }
 
 module spacer(slot) {
-	width = primaryWidth;
-	height = primaryHeight;
+	width = primaryWidth + 1.9;
+	height = primaryHeight + 1.9;
 	
 	depth = 0.5;
-	id = 70;
-	od = 73.5;
+	inset = 3.5;
 	difference() {
 		basicProfile(width, height, depth);
-		translate([0,0,-0.5]) basicProfile(width - 3.5, height - 3.5, depth+1);
+		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
 		
 		if (slot) translate([0,0,0.3]) difference() {
-			basicProfile((width - 3.5/2) + 0.5, (height - 3.5/2) + 0.5, depth);
-			translate([0,0,-0.5]) basicProfile((width - 3.5/2) - 0.5, (height - 3.5/2) - 0.5, depth+1);
+			basicProfile((width - inset/2) + 0.5, (height - inset/2) + 0.5, depth);
+			translate([0,0,-0.5]) basicProfile((width - inset/2) - 0.5, (height - inset/2) - 0.5, depth+1);
 		}
 	}
 }
@@ -134,9 +139,11 @@ module dustSpacer() {
 	height = primaryHeight + 6;
 	
 	h = 0.5;
+	// Inset slightly so they edges of the dust covers are not visible externally
+	inset = 0.5;
 	difference() {
 		basicProfile(width, height, h);
-		translate([0,0,-0.5]) basicProfile(width-5, height-5, h+1);
+		translate([0,0,-0.5]) basicProfile(width-8+inset, height-8+inset, h+1);
 	}
 }
 
@@ -153,14 +160,14 @@ module driver() {
 		stator(true);
 		translate([0,0,3]) meshRetainer();
 	}
-	translate([0,0,5.5]) diaphragm();
+	translate([0,0,5.55]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
 		stator(true);
 		translate([0,0,3]) meshRetainer();
 	}
 }
 
-module cans() /*color([10,1,0])*/ {
+module cans() color([10,1,0]) {
 	
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
@@ -285,14 +292,14 @@ module earspeaker(left) {
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
 		if (true) translate([0,0,-3.5]) cans();
 		
-		if (false) translate([0,0,-4.8]) innerRing();
+		if (true) translate([0,0,-4.8]) innerRing();
 	}
 	if (false) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
 		
-	translate([1,40,-4]) rotate([0,90,90]) wires();
+	//translate([1,40,-4]) rotate([0,90,90]) wires();
 }
 
 module innerRing() {
@@ -311,7 +318,7 @@ module innerRing() {
 	}
 }
 
-part = 13;
+part = 6;
 
 if (part == 0) difference () {
 	union() {
@@ -352,5 +359,5 @@ difference() {
 		if (part == 13) earspeaker();
 		if (part == 14) driver();
 	}
-	translate([0,0,-50]) cube([500, 500, 500]);
+	//translate([0,0,-50]) cube([500, 500, 500]);
 }
