@@ -199,7 +199,7 @@ module cans() color([10,1,0]) {
 	}
 }
 
-module earpad() {
+module earpad(left) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	h = 30;
@@ -207,7 +207,7 @@ module earpad() {
 	rotate([0,0,180]) difference() {
 		basicProfile(width, height, h);
 		translate([0,0,-0.5]) basicProfile(width-30, height-30, h+1);
-		translate([0,0,16]) rotate([0,8,0]) cylinder(r=100, h=30);
+		translate([0,0,16]) rotate([0,left?8:-8,0]) cylinder(r=100, h=30);
 	}
 }
 
@@ -295,7 +295,7 @@ module earspeaker(left) {
 		
 		if (true) translate([0,0,-4.8]) innerRing();
 	}
-	if (true) translate([0,0,-5]) rotate([0,180,left?0:180]) earpad();
+	if (true) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
