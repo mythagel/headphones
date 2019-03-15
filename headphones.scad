@@ -11,7 +11,7 @@
 mylarFilmWidth = 55;
 
 // mylar to check design fits material
-//translate([0,0,8]) %cube([55, 55*1.618, 0.0001], center=true);
+//translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
 
 module hexgrid(r, off, nx, ny, h) {
 	a = r * cos(180/6);
@@ -90,7 +90,7 @@ module stator(showMesh) union() {
 
 	if (true) difference() {
 		off = 6;
-		thick = 4;
+		thick = 3;
 		basicProfile(width+off, height+off, depth);
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
 	}
@@ -118,11 +118,11 @@ module meshRetainer() {
 }
 
 module spacer(slot) {
-	width = primaryWidth + 1.9;
-	height = primaryHeight + 1.9;
+	width = primaryWidth + 2.9;
+	height = primaryHeight + 2.9;
 	
 	depth = 0.5;
-	inset = 3.5;
+	inset = 4.5;
 	difference() {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
@@ -322,7 +322,7 @@ module innerRing() {
 	}
 }
 
-part = 0;
+part = 13;
 
 if (part == 0) difference () {
 	union() {
