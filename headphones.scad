@@ -167,7 +167,7 @@ module driver() {
 	}
 }
 
-module cans() color([10,1,0]) {
+module cans(left) color([10,1,0]) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	h = 19;
@@ -185,16 +185,12 @@ module cans() color([10,1,0]) {
 		translate([0,0,h-3]) basicProfile(primaryWidth-2, primaryHeight-2, h-2);
 		
 		// cut with chisel
-		//translate([-2.5,(id/2)-2,-3]) cube([5,5,h]);
+		translate([-2.5,(height/2)-10,-3]) cube([5,5,h]);
 		
 		// Drill holes
-		//translate([(od/2) - (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
-		//translate([(-od/2) + (5-2),0,(h-5)/2]) rotate([0,90,0]) cylinder(r=12/2, h=10, center=true);
-		
-		// Drill
-		n = 4;
-		for (i = [0 : (n-1)]) {
-			//rotate([0,0,((360/n) * i) + 45]) translate([0,(100-10)/2,-0.5]) cylinder(r=3/2, h=5);
+		rotate([0,0,left?-10:10]){
+			translate([(width/2) - 3.4, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
+			translate([(-width/2) + 1, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
 		}
 	}
 }
@@ -285,17 +281,17 @@ module bandBase() {
 }
 
 module earspeaker(left) {
-	union() {
+	rotate([0,0,left?10:-10]) union() {
 		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
 		translate([0,0,-.6]) dustSpacer();
 		driver();
 		translate([0,0,12.2]) dustSpacer();
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
-		if (true) translate([0,0,-3.5]) cans();
 		
+		if (true) translate([0,0,-3.5]) cans(left);
 		if (true) translate([0,0,-4.8]) innerRing();
+		if (true) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 	}
-	if (true) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 	
 	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
 	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
@@ -322,13 +318,13 @@ module innerRing() {
 	}
 }
 
-part = 13;
+part = 7;
 
 if (part == 0) difference () {
 	union() {
 		translate([0,0,58]) band();
-		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,80]) earspeaker(false);
-		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,100]) earspeaker(true);
+		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
+		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
 	}
 	
 	//translate([-500, 0, -500]) cube([1000,1000,1000]);
