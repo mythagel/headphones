@@ -18,6 +18,7 @@ mylarFilmWidth = 55;
 
 // Angle that cans are earspeakers are angled around the ear
 offsetAngle = 3;
+earpadAngle = 8;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -212,7 +213,7 @@ module earpad(left) {
 	rotate([0,0,180]) difference() {
 		basicProfile(width, height, h);
 		translate([0,0,-0.5]) basicProfile(width-30, height-30, h+1);
-		translate([0,0,16]) rotate([0,left?8:-8,0]) cylinder(r=100, h=30);
+		translate([0,0,16]) rotate([0,left?earpadAngle:-earpadAngle,0]) cylinder(r=100, h=30);
 	}
 }
 
@@ -233,16 +234,13 @@ module gimbal(left) {
 	union() {
 		difference() {
 			rotate([0,0,left?offsetAngle:-offsetAngle]) difference() {	
-				hull() {
-					basicProfile(innerWidth+5, innerHeight+5, (depth - 1));
-					basicProfile((innerWidth+5) - 3, (innerHeight+5) - 3, depth);
-				}
+				basicProfile(innerWidth+5, innerHeight+5, depth);
 				translate([0,0,-0.5]) basicProfile(innerWidth, innerHeight, depth+1);
 			}
-			translate([-50,6,-0.5])  cube([100, 100, 100]);
+			translate([-50,6,-0.5])  cube([100, 60, 10+1]);
+			
+			translate([0,0,10/2]) rotate([0,90,0]) cylinder(r=4.5/2, h=100, center=true);
 		}
-		translate([(innerWidth/2) - 5,0,10/2]) rotate([0,90,0]) cylinder(r=4.5/2, h=5);
-		translate([(-innerWidth/2) - 1,0,10/2]) rotate([0,90,0]) cylinder(r=4.5/2, h=5+1);
 	}
 }
 
@@ -302,13 +300,13 @@ module earspeaker(left) {
 	rotate([0,0,left?offsetAngle:-offsetAngle]) union() {
 		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
 		translate([0,0,-.6]) dustSpacer();
-		driver();
+		if (false) driver();
 		translate([0,0,12.2]) dustSpacer();
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
 		
 		if (true) translate([0,0,-3.5]) cans(left);
-		if (true) translate([0,0,-4.8]) innerRing();
-		if (true) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
+		if (false) translate([0,0,-4.8]) innerRing();
+		if (false) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 		
 		translate([0,0,((19-5)/2) -3.5 - (10/2) ]) gimbal(left);
 	}
@@ -335,7 +333,7 @@ module innerRing() {
 	}
 }
 
-part = 13;
+part = 9;
 
 if (part == 0) difference () {
 	union() {
