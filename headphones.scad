@@ -8,11 +8,16 @@
 //ear
 //translate([0,0,-25]) resize([40, 70]) cylinder(r=1, h=20, $fn=64);
 
-// head circumfrence 380mm
-// ear to top of head = 160mm
+// ear to top of head = 110mm
 // ear to ear ~ 180mm
 
+// head
+//cylinder(r1=180/2, r2=100/2, h=110);
+
 mylarFilmWidth = 55;
+
+// Angle that cans are earspeakers are angled around the ear
+offsetAngle = 3;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -192,7 +197,7 @@ module cans(left) color([10,1,0]) {
 		translate([-2.5,(height/2)-10,-3]) cube([5,5,h]);
 		
 		// Drill holes
-		rotate([0,0,left?-10:10]){
+		rotate([0,0,left?-offsetAngle:offsetAngle]){
 			translate([(width/2) - 3.4, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
 			translate([(-width/2) + 1, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
 		}
@@ -219,28 +224,25 @@ module wires() {
 	}
 }
 
-module gimbal() color([0.5, 0.5, 0.5]) {
-	thickness = 1;
-	width = 10;
-	id = 105;
-	
-	bandLength = ((2*3.1415926 * (id/2)) /2) + width;
-	
-	echo("gimbal width & length");
-	echo(bandLength);
-	echo(width);
-	
-	// shaped bent metal
-	translate([0,0,-width/2]) {
+module gimbal(left) {
+	innerWidth = primaryWidth + 20 + 2;
+	innerHeight = primaryHeight + 20 + 2;
+	depth = 10;
+
+	rotate([0,0,left?-offsetAngle:offsetAngle])
+	union() {
 		difference() {
-			cylinder(r=(id/2)+thickness, h=width);
-			translate([0,0,-0.5]) cylinder(r=id/2, h=width+1);
-			
-			translate([0,-id/2,width/2]) cube([id+thickness+1, id+thickness+1, width+1], center=true);
+			rotate([0,0,left?offsetAngle:-offsetAngle]) difference() {	
+				hull() {
+					basicProfile(innerWidth+5, innerHeight+5, (depth - 1));
+					basicProfile((innerWidth+5) - 3, (innerHeight+5) - 3, depth);
+				}
+				translate([0,0,-0.5]) basicProfile(innerWidth, innerHeight, depth+1);
+			}
+			translate([-50,6,-0.5])  cube([100, 100, 100]);
 		}
-		
-		translate([id/2,0,width/2]) rotate([0,90,0]) cylinder(r=width/2, h=thickness);
-		translate([(-id/2)-thickness,0,width/2]) rotate([0,90,0]) cylinder(r=width/2, h=thickness);
+		translate([(innerWidth/2) - 5,0,10/2]) rotate([0,90,0]) cylinder(r=4.5/2, h=5);
+		translate([(-innerWidth/2) - 1,0,10/2]) rotate([0,90,0]) cylinder(r=4.5/2, h=5+1);
 	}
 }
 
@@ -272,7 +274,7 @@ module headbandBase() {
 module band() color([0.5, 0.5, 0.5]) {
 	thickness = 2;
 	width = 24;
-	id = 166;
+	id = 186;
 	
 	bandLength = ((2*3.1415926 * (id/2)) /2);
 	
@@ -296,26 +298,8 @@ module band() color([0.5, 0.5, 0.5]) {
 	translate([-id/2,0,10]) rotate([-10,0,-90]) headbandBase();
 }
 
-module bandBase() {
-	bandWidth = 24;
-	gimbalWidth = 10;
-	
-	gimbalOd = 105+1;
-	
-	translate([-gimbalWidth/2,0,0]) difference() {
-		translate([0,-bandWidth/2,0]) cube([gimbalWidth, bandWidth, 16]);
-		translate([-0.5,0,(-gimbalOd/2) + 4]) rotate([0,90,0]) cylinder(r=gimbalOd/2, h=gimbalWidth+1);
-		
-		translate([-3 + 1,(-bandWidth/2) - 0.5,16-8]) cube([3, bandWidth+1, 10]);
-		
-		// M5 threaded
-		translate([-3,-8,12]) rotate([0,90,0]) cylinder(r=5/2, h=20);
-		translate([-3,8,12]) rotate([0,90,0]) cylinder(r=5/2, h=20);
-	}
-}
-
 module earspeaker(left) {
-	rotate([0,0,left?10:-10]) union() {
+	rotate([0,0,left?offsetAngle:-offsetAngle]) union() {
 		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
 		translate([0,0,-.6]) dustSpacer();
 		driver();
@@ -325,11 +309,10 @@ module earspeaker(left) {
 		if (true) translate([0,0,-3.5]) cans(left);
 		if (true) translate([0,0,-4.8]) innerRing();
 		if (true) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
-	}
-	
-	translate([0,-50,3.5]) rotate([90,90,0]) bandBase();
-	translate([0,0,3.5]) rotate([180,0,0]) gimbal();
 		
+		translate([0,0,((19-5)/2) -3.5 - (10/2) ]) gimbal(left);
+	}
+
 	//translate([1,40,-4]) rotate([0,90,90]) wires();
 }
 
@@ -357,8 +340,8 @@ part = 13;
 if (part == 0) difference () {
 	union() {
 		translate([0,0,58]) band();
-		translate([80, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
-		translate([-80, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
+		translate([90, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
+		translate([-90, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
 	}
 	
 	//translate([-500, 0, -500]) cube([1000,1000,1000]);
@@ -371,21 +354,20 @@ if (part == 3) spacer(false);		// x2
 if (part == 4) spacer(true);		// x2
 if (part == 5) dustSpacer();		// x8
 if (part == 6) innerRing();		// x2
-if (part == 15) headbandBase()	// x2
+if (part == 15) headbandBase();	// x2
+if (part == 9) gimbal(true);			// x1
+if (part == 9.5) gimbal(false);		// x1
 
 // wood
-if (part == 7) cans();			// x2
+if (part == 7) cans(true);			// x1
+if (part == 7.5) cans(false);			// x1
 	
 // Sew
-if (part == 8) earpad();			// x2
+if (part == 8) earpad(true);			// x1
+if (part == 8.5) earpad(false);		// x1
 
 // Bent metal
-if (part == 9) gimbal();			// x2
 if (part == 10) band();			// x1
-	
-// Machined
-if (part == 11) bandBase();		// x2
-	
 
 // Assemblies
 if (part == 12) diaphragm();
