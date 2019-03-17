@@ -252,12 +252,15 @@ module headbandBase() {
 	width = 55;
 	wireDiameter = 4;
 	h = 12;
+	leatherScrewWidth = 35;
 	
 	difference() {
 		hull() {
 			translate([-width/2, 0, 0]) cylinder(r=6/2, h=h);
 			translate([width/2, 0, 0]) cylinder(r=6/2, h=h);
-			translate([0,8/2, 8/2]) cube([8,8,8], center=true);
+			
+			translate([leatherScrewWidth/4,8/2, 6/2]) rotate([90,0,0]) cylinder(r=6/2, h=8, center=true);
+			translate([-leatherScrewWidth/4,8/2, 6/2]) rotate([90,0,0]) cylinder(r=6/2, h=8, center=true);
 		}
 		
 		// Wire bore
@@ -268,7 +271,8 @@ module headbandBase() {
 		translate([(-width/2) - wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
 		translate([(width/2) + wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
 		
-		translate([0,0,8/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
+		translate([leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
+		translate([-leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
 	}
 }
 
