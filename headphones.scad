@@ -3,9 +3,9 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-//$fn=128;
+$fn=128;
 
-simplify = true;
+simplify = false;
 
 //ear
 //translate([0,0,-25]) resize([40, 70]) cylinder(r=1, h=20, $fn=64);
@@ -21,6 +21,8 @@ mylarFilmWidth = 55;
 // Angle that cans are earspeakers are angled around the ear
 offsetAngle = 12;	// ears still cleared by pads at 12deg
 earpadAngle = 8;
+
+headbandWireDiameter = 3;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -201,8 +203,12 @@ module cans(left) color([10,1,0]) {
 		
 		// Drill holes
 		rotate([0,0,left?-offsetAngle:offsetAngle]){
-			translate([(width/2) - 3.4, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
-			translate([(-width/2) + 1, 0, (h - 5)/2]) rotate([0,90,0]) cylinder(r=5/2, h=15, center=true);
+			offsetLeft = [-2.73, 4.27];
+			offsetRight = [-4.45, 2.73];
+			offsetA = left ? offsetLeft[0] : offsetRight[0];
+			offsetB = left ? offsetLeft[1] : offsetRight[1];
+			translate([(width/2) + offsetA, 0, (h - 5)/2]) rotate([0,0,0]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
+			translate([(-width/2) + offsetB, 0, (h - 5)/2]) rotate([0,0,0]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
 		}
 	}
 }
@@ -249,8 +255,7 @@ module gimbal(left) {
 /* Leather band cut and screwed onto the headband base,
 threaded over the wire */
 module headbandBase() {
-	width = 55;
-	wireDiameter = 4;
+	width = 70;
 	h = 12;
 	leatherScrewWidth = 35;
 	
@@ -264,12 +269,12 @@ module headbandBase() {
 		}
 		
 		// Wire bore
-		translate([-width/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
-		translate([width/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
+		translate([-width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - 0.2)/2, h=h+1);
+		translate([width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - 0.2)/2, h=h+1);
 		
 		// Slots
-		translate([(-width/2) - wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
-		translate([(width/2) + wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
+		translate([(-width/2) - headbandWireDiameter/2, 0, h/2]) cube([(headbandWireDiameter),0.5,h+1], center=true);
+		translate([(width/2) + headbandWireDiameter/2, 0, h/2]) cube([(headbandWireDiameter),0.5,h+1], center=true);
 		
 		translate([leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
 		translate([-leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
@@ -278,8 +283,8 @@ module headbandBase() {
 
 module band() color([0.5, 0.5, 0.5]) {
 	thickness = 2;
-	width = 55;
-	id = 186;
+	width = 70;
+	id = 220;
 	
 	bandLength = ((2*3.1415926 * (id/2)) /2);
 	
@@ -295,12 +300,12 @@ module band() color([0.5, 0.5, 0.5]) {
 			
 			translate([0,0,2]) cylinder(r=(id/2)+5, h=width-4);
 			
-			translate([0,-id/2,width/2]) cube([id+thickness+2, id+thickness+1, width+1], center=true);
+			translate([0,-150,width/2]) cube([id+thickness+2, id+thickness+1, width+1], center=true);
 		}
 	}
 	
-	translate([id/2,0,10]) rotate([-10,0,90]) headbandBase();
-	translate([-id/2,0,10]) rotate([-10,0,-90]) headbandBase();
+	translate([(id/2),0,28]) rotate([-18,0,90]) headbandBase();
+	translate([(-id/2),0,28]) rotate([-18,0,-90]) headbandBase();
 }
 
 module earspeaker(left) {
@@ -315,7 +320,7 @@ module earspeaker(left) {
 		if (!simplify) translate([0,0,-4.8]) innerRing();
 		if (!simplify) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 		
-		translate([0,0,((19-5)/2) -3.5 - (10/2) ]) gimbal(left);
+		if(false) translate([0,0,((19-5)/2) -3.5 - (10/2) ]) gimbal(left);
 	}
 
 	if (!simplify) translate([1,40,-4]) rotate([0,90,90]) wires();
@@ -349,7 +354,7 @@ part = 0;
 
 if (part == 0) difference () {
 	union() {
-		translate([0,0,58]) band();
+		translate([0,0.5,40]) band();
 		translate([90, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
 		translate([-90, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
 	}
