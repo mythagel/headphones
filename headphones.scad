@@ -5,6 +5,8 @@
 
 //$fn=128;
 
+simplify = true;
+
 //ear
 //translate([0,0,-25]) resize([40, 70]) cylinder(r=1, h=20, $fn=64);
 
@@ -17,7 +19,7 @@
 mylarFilmWidth = 55;
 
 // Angle that cans are earspeakers are angled around the ear
-offsetAngle = 3;
+offsetAngle = 12;	// ears still cleared by pads at 12deg
 earpadAngle = 8;
 
 // mylar to check design fits material
@@ -81,31 +83,31 @@ module stator(showMesh) union() {
 	meshThickness = 0.5;
 	
 	// hex mesh support
-    if (true) difference() {
+    if (!simplify) difference() {
 		basicProfile(width, height, depth-meshThickness);
 		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshThickness)+1);
     }
 	// Inner frame
-	if (true) difference() {
+	if (!simplify) difference() {
 		basicProfile(width, height, depth-meshThickness);
 		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshThickness)+1);
 	}
 
-	if (true) difference() {
+	if (!simplify) difference() {
 		off = 6;
 		thick = 5;
 		basicProfile(width+off, height+off, (depth-meshThickness));
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshThickness)+1);
 	}
 
-	if (true) difference() {
+	if (!simplify) difference() {
 		off = 6;
 		thick = 3;
 		basicProfile(width+off, height+off, depth);
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
 	}
 	
-	if (true) difference() {
+	if (!simplify) difference() {
 		off = 2;
         basicProfile(width+off, height+off, depth/2);
         translate([0,0,-0.5]) basicProfile(width, height, (depth/2)+1);
@@ -247,23 +249,24 @@ module gimbal(left) {
 /* Leather band cut and screwed onto the headband base,
 threaded over the wire */
 module headbandBase() {
+	width = 55;
 	wireDiameter = 4;
 	h = 12;
 	
 	difference() {
 		hull() {
-			translate([-24/2, 0, 0]) cylinder(r=6/2, h=h);
-			translate([24/2, 0, 0]) cylinder(r=6/2, h=h);
+			translate([-width/2, 0, 0]) cylinder(r=6/2, h=h);
+			translate([width/2, 0, 0]) cylinder(r=6/2, h=h);
 			translate([0,8/2, 8/2]) cube([8,8,8], center=true);
 		}
 		
 		// Wire bore
-		translate([-24/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
-		translate([24/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
+		translate([-width/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
+		translate([width/2, 0, -0.5]) cylinder(r=(wireDiameter - 0.2)/2, h=h+1);
 		
 		// Slots
-		translate([(-24/2) - wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
-		translate([(24/2) + wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
+		translate([(-width/2) - wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
+		translate([(width/2) + wireDiameter/2, 0, h/2]) cube([(wireDiameter),0.5,h+1], center=true);
 		
 		translate([0,0,8/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
 	}
@@ -271,7 +274,7 @@ module headbandBase() {
 
 module band() color([0.5, 0.5, 0.5]) {
 	thickness = 2;
-	width = 24;
+	width = 55;
 	id = 186;
 	
 	bandLength = ((2*3.1415926 * (id/2)) /2);
@@ -300,18 +303,18 @@ module earspeaker(left) {
 	rotate([0,0,left?offsetAngle:-offsetAngle]) union() {
 		translate([0,0,-1.2]) dustSpacer();	// internal dust spacer
 		translate([0,0,-.6]) dustSpacer();
-		if (false) driver();
+		if (!simplify) driver();
 		translate([0,0,12.2]) dustSpacer();
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
 		
-		if (true) translate([0,0,-3.5]) cans(left);
-		if (false) translate([0,0,-4.8]) innerRing();
-		if (false) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
+		translate([0,0,-3.5]) cans(left);
+		if (!simplify) translate([0,0,-4.8]) innerRing();
+		if (!simplify) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 		
 		translate([0,0,((19-5)/2) -3.5 - (10/2) ]) gimbal(left);
 	}
 
-	//translate([1,40,-4]) rotate([0,90,90]) wires();
+	if (!simplify) translate([1,40,-4]) rotate([0,90,90]) wires();
 }
 
 module innerRing() {
@@ -333,7 +336,12 @@ module innerRing() {
 	}
 }
 
-part = 9;
+module meshCutPattern() {
+	inset = 4;
+	projection() basicProfile(primaryWidth+inset, primaryHeight+inset, 0.5);
+}
+
+part = 0;
 
 if (part == 0) difference () {
 	union() {
@@ -352,9 +360,11 @@ if (part == 3) spacer(false);		// x2
 if (part == 4) spacer(true);		// x2
 if (part == 5) dustSpacer();		// x8
 if (part == 6) innerRing();		// x2
-if (part == 15) headbandBase();	// x2
 if (part == 9) gimbal(true);			// x1
 if (part == 9.5) gimbal(false);		// x1
+if (part == 15) headbandBase();	// x2
+
+if (part == 16) meshCutPattern();
 
 // wood
 if (part == 7) cans(true);			// x1

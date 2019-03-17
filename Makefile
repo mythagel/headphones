@@ -1,4 +1,4 @@
-all: stator.stl meshRetainer.stl spacer.stl spacer_1.stl dustSpacer.stl innerRing.stl cans_l.stl cans_r.stl headbandBase.stl gimbal_l.stl gimbal_r.stl
+all: stator.stl meshRetainer.stl spacer.stl spacer_1.stl dustSpacer.stl innerRing.stl cans_l.stl cans_r.stl headbandBase.stl gimbal_l.stl gimbal_r.stl meshCutPattern.svg
 
 stator.stl: headphones.scad
 	openscad --render -o stator.stl -D part=1 headphones.scad
@@ -30,4 +30,7 @@ gimbal_l.stl: headphones.scad
 	openscad --render -o gimbal_l.stl -D part=9 headphones.scad
 gimbal_r.stl: headphones.scad
 	openscad --render -o gimbal_r.stl -D part=9.5 headphones.scad
+
+meshCutPattern.svg: headphones.scad
+	openscad --render -o meshCutPattern.svg -D part=16 headphones.scad
 
