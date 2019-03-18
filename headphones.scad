@@ -3,8 +3,7 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-//$fn=128;
-
+$fn=128;
 simplify = false;
 
 //ear
@@ -23,6 +22,7 @@ offsetAngle = 12;	// ears still cleared by pads at 12deg
 earpadAngle = 8;
 
 headbandWireDiameter = 3;
+headbandWidth = 70;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -77,13 +77,13 @@ module basicProfile(x, y, height) {
 primaryWidth = 55;
 primaryHeight = primaryWidth * 1.618;
 
-module stator(showMesh) union() {
+module stator() color([1,0,0]) {
 	width = primaryWidth;
 	height = primaryHeight;
 	depth = 6;
 	
 	wallThickness = (0.4*4);
-	meshThickness = 0.5;
+	meshThickness = 0.6;
 	
 	// hex mesh support
     if (!simplify) difference() {
@@ -96,33 +96,36 @@ module stator(showMesh) union() {
 		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshThickness)+1);
 	}
 
+	// Lower outer rim
 	if (!simplify) difference() {
 		off = 6;
-		thick = 5;
+		thick = 4;
 		basicProfile(width+off, height+off, (depth-meshThickness));
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshThickness)+1);
 	}
 
-	if (!simplify) difference() {
+	// Outer rim
+	difference() {
 		off = 6;
-		thick = 3;
+		thick = 2.4;
 		basicProfile(width+off, height+off, depth);
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
 	}
 	
+	// Bottom face
 	if (!simplify) difference() {
 		off = 2;
-        basicProfile(width+off, height+off, depth/2);
-        translate([0,0,-0.5]) basicProfile(width, height, (depth/2)+1);
+        basicProfile(width+off, height+off, depth/4);
+        translate([0,0,-0.5]) basicProfile(width, height, (depth/4)+1);
 		
 		translate([0,(height/2) + 0.5]) cube([5, 5, depth+1], center=true);
 	}
 
     // mesh
-	if (showMesh) translate([0,0,5.5]) %basicProfile(width, height, 0.5);
+	if (false) translate([0,0,5.5]) %basicProfile(width, height, 0.5);
 }
 
-module meshRetainer() {
+module meshRetainer() color([1,0,0]) {
 	width = primaryWidth + 0.7;
 	height = primaryHeight + 0.7;
 	
@@ -132,7 +135,7 @@ module meshRetainer() {
 	}
 }
 
-module spacer(slot) {
+module spacer(slot) color([1,0,0]) {
 	width = primaryWidth + 2.9;
 	height = primaryHeight + 2.9;
 	
@@ -149,7 +152,7 @@ module spacer(slot) {
 	}
 }
 
-module dustSpacer() {
+module dustSpacer() color([1,0,0]) {
 	width = primaryWidth + 6;
 	height = primaryHeight + 6;
 	
@@ -172,17 +175,17 @@ module diaphragm() {
 
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
-		stator(true);
+		stator();
 		translate([0,0,3]) meshRetainer();
 	}
 	translate([0,0,5.55]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
-		stator(true);
+		stator();
 		translate([0,0,3]) meshRetainer();
 	}
 }
 
-module cans(left) color([10,1,0]) {
+module cans(left) color([193/256, 154/256, 107/256]) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	h = 19;
@@ -236,8 +239,7 @@ module wires() {
 
 /* Leather band cut and screwed onto the headband base,
 threaded over the wire. This is the sliding part */
-module headbandBase() {
-	width = 70;
+module headbandBase() color([1,0,0]) {
 	h = 12;
 	leatherScrewWidth = 35;
 	inset = 0.2;
@@ -245,26 +247,26 @@ module headbandBase() {
 	
 	difference() {
 		hull() {
-			translate([-width/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
-			translate([width/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
+			translate([-headbandWidth/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
+			translate([headbandWidth/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
 			
 			translate([leatherScrewWidth/4,8/2, 6/2]) rotate([90,0,0]) cylinder(r=6/2, h=8, center=true);
 			translate([-leatherScrewWidth/4,8/2, 6/2]) rotate([90,0,0]) cylinder(r=6/2, h=8, center=true);
 			
-			translate([0,0,h-(5/2)]) rotate([0,90,0]) cylinder(r=5/2, h=width, center=true);
+			translate([0,0,h-(5/2)]) rotate([0,90,0]) cylinder(r=5/2, h=headbandWidth, center=true);
 		}
 		
 		// Sliding wire bore
-		translate([-width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - inset)/2, h=h+1);
-		translate([width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - inset)/2, h=h+1);
+		translate([-headbandWidth/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - inset)/2, h=h+1);
+		translate([headbandWidth/2, 0, -0.5]) cylinder(r=(headbandWireDiameter - inset)/2, h=h+1);
 
 		// Fixed wire bore
-		translate([-width/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
-		translate([width/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
+		translate([-headbandWidth/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
+		translate([headbandWidth/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
 		
 		// Slots
-		translate([(-width/2), 0, h/2]) cube([(headbandWireDiameter*2),0.5,h+1], center=true);
-		translate([(width/2), 0, h/2]) cube([(headbandWireDiameter*2),0.5,h+1], center=true);
+		translate([(-headbandWidth/2), 0, h/2]) cube([(headbandWireDiameter*2),0.5,h+1], center=true);
+		translate([(headbandWidth/2), 0, h/2]) cube([(headbandWireDiameter*2),0.5,h+1], center=true);
 		
 		translate([leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
 		translate([-leatherScrewWidth/4,0,6/2]) rotate([-90,0,0]) cylinder(r=3.5/2, h=10);
@@ -272,43 +274,41 @@ module headbandBase() {
 }
 
 // Fixed part
-module fixedHeadbandBase() {
-	width = 70;
+module fixedHeadbandBase() color([1,0,0]) {
 	h = 12;
 	clearance = -0.1;
 	
 	difference() {
 		hull() {
-			translate([-width/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
-			translate([width/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
+			translate([-headbandWidth/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
+			translate([headbandWidth/2, 0, 0]) cylinder(r=8/2, h=h-(5/2));
 			
-			translate([0,0,h-(5/2)]) rotate([0,90,0]) cylinder(r=5/2, h=width, center=true);
+			translate([0,0,h-(5/2)]) rotate([0,90,0]) cylinder(r=5/2, h=headbandWidth, center=true);
 		}
 		
-		translate([-width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
-		translate([width/2, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
-		translate([-width/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h-1);
-		translate([width/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h-1);
+		translate([-headbandWidth/2, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
+		translate([headbandWidth/2, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h+1);
+		translate([-headbandWidth/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h-1);
+		translate([headbandWidth/4, 0, -0.5]) cylinder(r=(headbandWireDiameter + clearance)/2, h=h-1);
 	}
 }
 
-module band() color([0.5, 0.5, 0.5]) {
+module band() {
 	thickness = 2;
-	width = 70;
 	id = 220;
 	
 	// shaped bent wire
-	difference() {
+	color([224/256, 223/256, 219/256]) difference() {
 		union() {
-			translate([0,-width/2, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
-			translate([0,width/2, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
+			translate([0,-headbandWidth/2, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
+			translate([0,headbandWidth/2, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
 			
-			translate([0,width/4, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
-			translate([0,-width/4, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
+			translate([0,headbandWidth/4, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
+			translate([0,-headbandWidth/4, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
 		}
 		
-		rotate([90,0,0]) translate([0,-150,0]) cube([id+thickness+2, id+thickness+1, width+10], center=true);
-		rotate([90,0,0]) translate([0,-90,0]) cube([id+thickness+2, id+thickness+1, (width/2)+10], center=true);
+		rotate([90,0,0]) translate([0,-150,0]) cube([id+thickness+2, id+thickness+1, headbandWidth+10], center=true);
+		rotate([90,0,0]) translate([0,-90,0]) cube([id+thickness+2, id+thickness+1, (headbandWidth/2)+10], center=true);
 	}
 	
 	translate([(id/2)-8,0,42]) rotate([-28,0,90]) headbandBase();
@@ -331,10 +331,10 @@ module earspeaker(left) {
 		if (!simplify) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 	}
 
-	if (!simplify) translate([1,40,-4]) rotate([0,90,90]) wires();
+	if (false) translate([1,40,-4]) rotate([0,90,90]) wires();
 }
 
-module innerRing() {
+module innerRing() color([1,0,0]) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	
@@ -358,7 +358,7 @@ module meshCutPattern() {
 	projection() basicProfile(primaryWidth+inset, primaryHeight+inset, 0.5);
 }
 
-part = 15;
+part = 0;
 
 if (part == 0) difference () {
 	union() {
@@ -371,7 +371,7 @@ if (part == 0) difference () {
 }
 
 // 3d printed
-if (part == 1) stator(false);		// x4
+if (part == 1) stator();		// x4
 if (part == 2) meshRetainer();	// x4
 if (part == 3) spacer(false);		// x2
 if (part == 4) spacer(true);		// x2
