@@ -3,7 +3,7 @@
 // top depth = 20mm
 // rear depth = 25mm
 
-$fn=128;
+$fs = 0.4;
 simplify = false;
 
 //ear
@@ -82,8 +82,9 @@ module stator() color([1,0,0]) {
 	height = primaryHeight;
 	depth = 6;
 	
+	extrusionWidth = 0.45 + 0.05;		// Poor tolerance on printer
 	wallThickness = (0.4*4);
-	meshThickness = 0.6;
+	meshThickness = 0.45;
 	
 	// hex mesh support
     if (!simplify) difference() {
@@ -99,12 +100,12 @@ module stator() color([1,0,0]) {
 	// Lower outer rim
 	if (!simplify) difference() {
 		off = 6;
-		thick = 4;
+		thick = off - ((meshThickness + extrusionWidth)*2);
 		basicProfile(width+off, height+off, (depth-meshThickness));
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshThickness)+1);
 	}
 
-	// Outer rim
+	// Raised lip
 	difference() {
 		off = 6;
 		thick = 2.4;
@@ -126,12 +127,13 @@ module stator() color([1,0,0]) {
 }
 
 module meshRetainer() color([1,0,0]) {
-	width = primaryWidth + 0.7;
-	height = primaryHeight + 0.7;
+	outerWidth = primaryWidth + 1.8;
+	outerHeight = primaryHeight + 1.8;
+	thickness = 0.4;
 	
 	difference() {
-		basicProfile(width, height, 2.5);
-		translate([0,0,-0.5]) basicProfile(width-0.5, height-0.5, 3+1);
+		basicProfile(outerWidth, outerHeight, 2.5);
+		translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
 	}
 }
 
@@ -358,42 +360,43 @@ module meshCutPattern() {
 	projection() basicProfile(primaryWidth+inset, primaryHeight+inset, 0.5);
 }
 
-part = 0;
+part = 14;
 
-if (part == 0) difference () {
+difference () {
 	union() {
-		translate([0,0.5,40]) band();
-		translate([90, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
-		translate([-90, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
+		if (part == 0) union() {
+			translate([0,0.5,40]) band();
+			translate([90, 0,0]) rotate([180,-90,0]) rotate([0,0,90]) earspeaker(false);
+			translate([-90, 0,0]) rotate([0,-90,0]) rotate([0,0,90]) earspeaker(true);
+		}
+
+		// 3d printed
+		if (part == 1) stator();		// x4
+		if (part == 2) meshRetainer();	// x4
+		if (part == 3) spacer(false);		// x2
+		if (part == 4) spacer(true);		// x2
+		if (part == 5) dustSpacer();		// x8
+		if (part == 6) innerRing();		// x2
+		if (part == 15) headbandBase();	// x2
+		if (part == 17) fixedHeadbandBase();	// x2
+
+		if (part == 16) meshCutPattern();
+
+		// wood
+		if (part == 7) cans(true);			// x1
+		if (part == 7.5) cans(false);			// x1
+			
+		// Sew
+		if (part == 8) earpad(true);			// x1
+		if (part == 8.5) earpad(false);		// x1
+
+		// Bent metal
+		if (part == 10) band();			// x1
+
+		// Assemblies
+		if (part == 12) diaphragm();
+		if (part == 13) earspeaker();
+		if (part == 14) driver();
 	}
-	
 	//translate([-500, 0, -500]) cube([1000,1000,1000]);
 }
-
-// 3d printed
-if (part == 1) stator();		// x4
-if (part == 2) meshRetainer();	// x4
-if (part == 3) spacer(false);		// x2
-if (part == 4) spacer(true);		// x2
-if (part == 5) dustSpacer();		// x8
-if (part == 6) innerRing();		// x2
-if (part == 15) headbandBase();	// x2
-if (part == 17) fixedHeadbandBase();	// x2
-
-if (part == 16) meshCutPattern();
-
-// wood
-if (part == 7) cans(true);			// x1
-if (part == 7.5) cans(false);			// x1
-	
-// Sew
-if (part == 8) earpad(true);			// x1
-if (part == 8.5) earpad(false);		// x1
-
-// Bent metal
-if (part == 10) band();			// x1
-
-// Assemblies
-if (part == 12) diaphragm();
-if (part == 13) earspeaker();
-if (part == 14) driver();
