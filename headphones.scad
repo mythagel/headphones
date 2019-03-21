@@ -360,7 +360,7 @@ module meshCutPattern() {
 	projection() basicProfile(primaryWidth+inset, primaryHeight+inset, 0.5);
 }
 
-part = 14;
+part = 0;
 
 difference () {
 	union() {
