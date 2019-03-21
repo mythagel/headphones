@@ -132,7 +132,7 @@ module meshRetainer() color([1,0,0]) {
 	thickness = 0.4;
 	
 	difference() {
-		basicProfile(outerWidth, outerHeight, 2.5);
+		basicProfile(outerWidth, outerHeight, 3);
 		translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
 	}
 }
@@ -178,12 +178,12 @@ module diaphragm() {
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
 		stator();
-		translate([0,0,3]) meshRetainer();
+		translate([0,0,2]) meshRetainer();
 	}
 	translate([0,0,5.55]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) {
 		stator();
-		translate([0,0,3]) meshRetainer();
+		translate([0,0,2]) meshRetainer();
 	}
 }
 
