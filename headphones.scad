@@ -141,7 +141,7 @@ module spacer(slot) color([1,0,0]) {
 	width = primaryWidth + 2.9;
 	height = primaryHeight + 2.9;
 	
-	depth = 0.5;
+	depth = 0.6;
 	inset = 4.5;
 	difference() {
 		basicProfile(width, height, depth);
@@ -171,8 +171,8 @@ module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
 	spacer(true);
-	if (true) translate([0,0,0.5]) %basicProfile(width, height, 0.01);
-	translate([0,0,0.51]) spacer(false);
+	if (true) translate([0,0,0.6]) %basicProfile(width, height, 0.01);
+	translate([0,0,0.61]) spacer(false);
 }
 
 module driver() {
