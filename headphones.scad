@@ -86,23 +86,25 @@ module stator() color([1,0,0]) {
 	wallThickness = (0.4*4);
 	meshThickness = 0.45;
 	
+	meshInset = meshThickness + (0.6 - 0.2);	// Inset mesh thickness & spacer thickness (minus tolerance)
+	
 	// hex mesh support
     if (!simplify) difference() {
-		basicProfile(width, height, depth-meshThickness);
-		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshThickness)+1);
+		basicProfile(width, height, depth-meshInset);
+		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshInset)+1);
     }
 	// Inner frame
 	if (!simplify) difference() {
-		basicProfile(width, height, depth-meshThickness);
-		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshThickness)+1);
+		basicProfile(width, height, depth-meshInset);
+		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshInset)+1);
 	}
 
 	// Lower outer rim
 	if (!simplify) difference() {
 		off = 6;
 		thick = off - ((meshThickness + extrusionWidth)*2);
-		basicProfile(width+off, height+off, (depth-meshThickness));
-		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshThickness)+1);
+		basicProfile(width+off, height+off, (depth-meshInset));
+		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshInset)+1);
 	}
 
 	// Raised lip
@@ -180,13 +182,15 @@ module driver() {
 		stator();
 		translate([0,0,2]) meshRetainer();
 	}
-	translate([0,0,5.55]) diaphragm();
-	translate([0,0,12.1]) rotate([0,180,0]) {
+	translate([0,0,5.6]) diaphragm();
+	translate([0,0,12.4]) rotate([0,180,0]) {
 		stator();
 		translate([0,0,2]) meshRetainer();
 	}
 }
 
+// TODO make symmeteric
+// angle created by making rear band wire longer
 module cans(left) color([193/256, 154/256, 107/256]) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
