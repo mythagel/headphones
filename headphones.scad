@@ -22,7 +22,7 @@ offsetAngle = 12;	// ears still cleared by pads at 12deg
 earpadAngle = 8;
 
 headbandWireDiameter = 3;
-headbandWidth = 70;
+headbandWidth = 64;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -189,9 +189,7 @@ module driver() {
 	}
 }
 
-// TODO make symmeteric
-// angle created by making rear band wire longer
-module cans(left) color([193/256, 154/256, 107/256]) {
+module cans() color([193/256, 154/256, 107/256]) {
 	width = primaryWidth + 20;
 	height = primaryHeight + 20;
 	h = 19;
@@ -212,13 +210,10 @@ module cans(left) color([193/256, 154/256, 107/256]) {
 		translate([-2.5,(height/2)-10,-3]) cube([5,5,h]);
 		
 		// Drill holes
-		rotate([0,0,left?-offsetAngle:offsetAngle]){
-			offsetLeft = [-2.73, 4.27];
-			offsetRight = [-4.45, 2.73];
-			offsetA = left ? offsetLeft[0] : offsetRight[0];
-			offsetB = left ? offsetLeft[1] : offsetRight[1];
-			translate([(width/2) + offsetA, 0, (h - 5)/2]) rotate([0,0,0]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
-			translate([(-width/2) + offsetB, 0, (h - 5)/2]) rotate([0,0,0]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
+		union() {
+			off = 3.965;
+			translate([(width/2) - off, 0, (h - 5)/2]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
+			translate([(-width/2) + off, 0, (h - 5)/2]) cylinder(r=headbandWireDiameter/2, h=30, center=true);
 		}
 	}
 }
@@ -313,7 +308,9 @@ module band() {
 			translate([0,-headbandWidth/4, 0]) rotate([90,0,0]) rotate_extrude(convexity=10) translate([id/2,0,0]) circle(r=headbandWireDiameter/2);
 		}
 		
-		rotate([90,0,0]) translate([0,-150,0]) cube([id+thickness+2, id+thickness+1, headbandWidth+10], center=true);
+		// Outer limit
+		rotate([90-10,0,0]) translate([0,-150,0]) cube([id+thickness+2, id+thickness+1, headbandWidth+50], center=true);
+		// Inner limit
 		rotate([90,0,0]) translate([0,-90,0]) cube([id+thickness+2, id+thickness+1, (headbandWidth/2)+10], center=true);
 	}
 	
@@ -332,7 +329,7 @@ module earspeaker(left) {
 		translate([0,0,12.2]) dustSpacer();
 		translate([0,0,12.8]) dustSpacer();		// outer fabric
 		
-		translate([0,0,-3.5]) cans(left);
+		translate([0,0,-3.5]) cans();
 		if (!simplify) translate([0,0,-4.8]) innerRing();
 		if (!simplify) translate([0,0,-5]) rotate([0,180,180]) earpad(left);
 	}
@@ -387,8 +384,7 @@ difference () {
 		if (part == 16) meshCutPattern();
 
 		// wood
-		if (part == 7) cans(true);			// x1
-		if (part == 7.5) cans(false);			// x1
+		if (part == 7) cans();			// x2
 			
 		// Sew
 		if (part == 8) earpad(true);			// x1
