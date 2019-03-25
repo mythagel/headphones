@@ -356,9 +356,21 @@ module innerRing() color([1,0,0]) {
 	}
 }
 
-module meshCutPattern() {
-	inset = 4;
-	projection() basicProfile(primaryWidth+inset, primaryHeight+inset, 0.5);
+module meshFormTool() {
+	inset = 3*2;
+	
+	union() {
+		basicProfile(primaryWidth, primaryHeight, 6);
+		hull() {
+			translate([0,0,6])basicProfile(primaryWidth, primaryHeight, 0.00001);
+			translate([0,0,6+10]) basicProfile(primaryWidth+inset, primaryHeight+inset, 0.000001);
+		}
+	}
+	
+	difference() {
+		basicProfile(primaryWidth+20, primaryHeight+20, 5);
+		translate([0,0,-0.5]) basicProfile(primaryWidth+2, primaryHeight+2, 5+1);
+	}
 }
 
 part = 0;
@@ -381,7 +393,7 @@ difference () {
 		if (part == 15) headbandBase();	// x2
 		if (part == 17) fixedHeadbandBase();	// x2
 
-		if (part == 16) meshCutPattern();
+		if (part == 16) meshFormTool();
 
 		// wood
 		if (part == 7) cans();			// x2
