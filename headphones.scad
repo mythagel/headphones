@@ -83,7 +83,7 @@ module stator() color([1,0,0]) {
 	depth = 6;
 	
 	extrusionWidth = 0.45 + 0.05;		// Poor tolerance on printer
-	wallThickness = (0.4*4);
+	wallThickness = (0.45*4);
 	meshThickness = 0.45;
 	
 	meshInset = meshThickness + (0.6 - 0.2);	// Inset mesh thickness & spacer thickness (minus tolerance)
@@ -91,7 +91,7 @@ module stator() color([1,0,0]) {
 	// hex mesh support
     if (!simplify) difference() {
 		basicProfile(width, height, depth-meshInset);
-		translate([0,0,-0.5]) hexgrid(12, wallThickness, 5, 5, (depth-meshInset)+1);
+		translate([0,0,-0.5]) hexgrid(13.5, wallThickness, 5, 5, (depth-meshInset)+1);
     }
 	// Inner frame
 	if (!simplify) difference() {
@@ -115,6 +115,9 @@ module stator() color([1,0,0]) {
 		thick = 2.4;
 		basicProfile(width+off, height+off, depth);
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
+
+		// opening for diaphragm wire
+		translate([0,height/2,depth]) rotate([-90,0,0]) cylinder(r=0.6, h=10, center=true, $fn=6);
 	}
 	
 	// Bottom face
