@@ -145,11 +145,11 @@ module meshRetainer() color([1,0,0]) {
 }
 
 module spacer(slot) color([1,0,0]) {
-	width = primaryWidth + 2.9;
-	height = primaryHeight + 2.9;
+	width = primaryWidth + 3;
+	height = primaryHeight + 3;
 	
 	depth = 0.6;
-	inset = 4.5;
+	inset = 4.6;
 	difference() {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
@@ -157,6 +157,9 @@ module spacer(slot) color([1,0,0]) {
 		if (slot) translate([0,0,0.3]) difference() {
 			basicProfile((width - inset/2) + 0.5, (height - inset/2) + 0.5, depth);
 			translate([0,0,-0.5]) basicProfile((width - inset/2) - 0.5, (height - inset/2) - 0.5, depth+1);
+		}
+		if (slot) {
+			translate([0,height/2,0.82]) rotate([-90,0,0]) cylinder(r=0.6, h=2, center=true, $fn=6);
 		}
 	}
 }
