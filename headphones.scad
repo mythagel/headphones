@@ -184,8 +184,8 @@ module driver() {
 		stator();
 		translate([0,0,2]) meshRetainer();
 	}
-	translate([0,0,5.6]) diaphragm();
-	translate([0,0,12.4]) rotate([0,180,0]) {
+	translate([0,0,5.15 + 0.45]) diaphragm();
+	translate([0,0,12 + 0.45]) rotate([0,180,0]) {
 		stator();
 		translate([0,0,2]) meshRetainer();
 	}
