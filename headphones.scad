@@ -370,6 +370,8 @@ module meshFormTool() {
 	difference() {
 		basicProfile(primaryWidth+20, primaryHeight+20, 5);
 		translate([0,0,-0.5]) basicProfile(primaryWidth+2, primaryHeight+2, 5+1);
+		
+		translate([0,0,4]) basicProfile(primaryWidth+inset, primaryHeight+inset, 2);
 	}
 }
 
