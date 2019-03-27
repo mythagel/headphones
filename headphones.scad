@@ -105,6 +105,8 @@ module stator() color([1,0,0]) {
 		thick = off - ((meshThickness + extrusionWidth)*2);
 		basicProfile(width+off, height+off, (depth-meshInset));
 		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshInset)+1);
+
+		translate([0,(height/2) + 0.5, depth/2]) cube([5, 5, depth+1], center=true);
 	}
 
 	// Raised lip
