@@ -159,7 +159,7 @@ module spacer(slot) color([1,0,0]) {
 			translate([0,0,-0.5]) basicProfile((width - inset/2) - 0.6, (height - inset/2) - 0.6, depth+1);
 		}
 		if (slot) {
-			translate([0,height/2,0.82]) rotate([-90,0,0]) cylinder(r=0.6, h=2, center=true, $fn=6);
+			translate([0,height/2,0.82]) rotate([-90,0,0]) cylinder(r=0.6, h=4, center=true, $fn=6);
 		}
 	}
 }
@@ -383,7 +383,7 @@ module meshFormTool() {
 	}
 }
 
-part = 0;
+part = 4;
 
 difference () {
 	union() {
