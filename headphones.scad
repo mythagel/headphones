@@ -169,11 +169,9 @@ module dustSpacer() color([1,0,0]) {
 	height = primaryHeight + 6;
 	
 	h = 0.5;
-	// Inset slightly so they edges of the dust covers are not visible externally
-	inset = 0.5;
 	difference() {
 		basicProfile(width, height, h);
-		translate([0,0,-0.5]) basicProfile(width-8+inset, height-8+inset, h+1);
+		translate([0,0,-0.5]) basicProfile(width-11, height-11, h+1);
 	}
 }
 
