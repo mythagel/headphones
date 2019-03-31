@@ -78,79 +78,73 @@ primaryWidth = 55;
 primaryHeight = primaryWidth * 1.618;
 
 module stator() color([1,0,0]) {
-	width = primaryWidth;
-	height = primaryHeight;
 	depth = 6;
+	verticalInset = 0.6+0.4;
 	
-	extrusionWidth = 0.45 + 0.05;		// Poor tolerance on printer
-	wallThickness = (0.45*4);
-	meshThickness = 0.45;
-	
-	meshInset = meshThickness + (0.6 - 0.2);	// Inset mesh thickness & spacer thickness (minus tolerance)
-	
-	// hex mesh support
-    if (!simplify) difference() {
-		basicProfile(width, height, depth-meshInset);
-		translate([0,0,-0.5]) hexgrid(13.5, wallThickness, 5, 5, (depth-meshInset)+1);
-    }
-	// Inner frame
-	if (!simplify) difference() {
-		basicProfile(width, height, depth-meshInset);
-		translate([0,0,-0.5]) basicProfile(width-wallThickness, height-wallThickness, (depth-meshInset)+1);
-	}
-
-	// Lower outer rim
-	if (!simplify) difference() {
-		off = 6;
-		thick = off - ((meshThickness + extrusionWidth)*2);
-		basicProfile(width+off, height+off, (depth-meshInset));
-		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, (depth-meshInset)+1);
-
-		translate([0,(height/2) + 0.5, depth/2]) cube([5, 5, depth+1], center=true);
-	}
-
-	// Raised lip
 	difference() {
-		off = 6;
-		thick = 2.4;
-		basicProfile(width+off, height+off, depth);
-		translate([0,0,-0.5]) basicProfile((width+off)-thick, (height+off)-thick, depth+1);
+		union() {
+			// hex mesh support
+			if (!simplify) difference() {
+				wallThickness = (0.45*4);
+				basicProfile(primaryWidth, primaryHeight, depth);
+				translate([0,0,-0.5]) hexgrid(13.8, wallThickness, 5, 5, depth+1);
+			}
 
-		// opening for diaphragm wire
-		translate([0,height/2,depth]) rotate([-90,0,0]) cylinder(r=0.6, h=10, center=true, $fn=6);
-	}
-	
-	// Bottom face
-	if (!simplify) difference() {
-		off = 2;
-        basicProfile(width+off, height+off, depth/4);
-        translate([0,0,-0.5]) basicProfile(width, height, (depth/4)+1);
+			// frame
+			difference() {
+				outerWidth = primaryWidth + 6;
+				outerHeight = primaryHeight + 6;
+				basicProfile(outerWidth, outerHeight, depth);
+				translate([0,0,-0.5]) basicProfile(primaryWidth, primaryHeight, depth+1);
+			}
+		}
 		
-		translate([0,(height/2) + 0.5]) cube([5, 5, depth+1], center=true);
+		// spacer / meshRetainer slot
+		translate([0,0,1]) difference() {
+			inset = 0.5;
+			width = 0.5;
+			outerWidth = primaryWidth + 6 - (inset*2);
+			outerHeight = primaryHeight + 6 - (inset*2);
+			basicProfile(outerWidth, outerHeight, depth);
+			translate([0,0,-0.5]) basicProfile(outerWidth - (width*2), outerHeight - (width*2), depth+1);
+		}
+		
+		// Mesh & spacer vertical inset
+		translate([0,0,depth - verticalInset]) union() {
+			inset = 0.5;
+			width = 0.5;
+			outerWidth = primaryWidth + 6 - (inset*2);
+			outerHeight = primaryHeight + 6 - (inset*2);
+			basicProfile(outerWidth - (width*2), outerHeight - (width*2), depth);
+		}
+		
+		// opening for diaphragm wire
+		translate([0,(primaryHeight + 6)/2,depth]) rotate([-90,0,0]) cylinder(r=0.8, h=10, center=true, $fn=6);
+
+		// opening for stator wire
+		intersection() {
+			translate([0,0,-0.5]) difference() {
+				outerWidth = primaryWidth + 6 - 2;
+				outerHeight = primaryHeight + 6 - 2;
+				basicProfile(outerWidth, outerHeight, depth+1);
+				translate([0,0,-0.5]) basicProfile(primaryWidth + 1.45, primaryHeight + 1.45, depth+1+1);
+			}
+			
+			rotate([0,0,7.5]) translate([0,100,0]) cube([4, 200, 16], center=true);
+		}
 	}
 
     // mesh
-	if (false) translate([0,0,5.5]) %basicProfile(width, height, 0.5);
-}
-
-module meshRetainer() color([1,0,0]) {
-	outerWidth = primaryWidth + 1.8;
-	outerHeight = primaryHeight + 1.8;
-	thickness = 0.4;
-	
-	difference() {
-		basicProfile(outerWidth, outerHeight, 3);
-		translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
-	}
+	if (false) translate([0,0,6.1]) %basicProfile(primaryWidth+6, primaryHeight+6, 0.5);
 }
 
 module spacer(slot) color([1,0,0]) {
-	width = primaryWidth + 3;
-	height = primaryHeight + 3;
+	width = primaryWidth + 5 - 0.1;
+	height = primaryHeight + 5 - 0.1;
 	
 	depth = 0.6;
 	inset = 8;
-	difference() {
+	translate([0,0,3]) difference() {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
 		
@@ -161,6 +155,19 @@ module spacer(slot) color([1,0,0]) {
 		}
 		if (slot) {
 			translate([0,height/2,1.24]) rotate([-90,0,0]) cylinder(r=0.6*2, h=4, center=true, $fn=6);
+		}
+	}
+
+	// meshRetainer
+	union() {
+		inset = 0.5;
+		outerWidth = primaryWidth + 6 - (inset * 2);
+		outerHeight = primaryHeight + 6 - (inset * 2);
+		thickness = 0.4;
+		
+		difference() {
+			basicProfile(outerWidth - 0.1, outerHeight - 0.1, 3);
+			translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
 		}
 	}
 }
@@ -179,20 +186,18 @@ module dustSpacer() color([1,0,0]) {
 module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
-	spacer(true);
-	if (true) translate([0,0,0.6]) %basicProfile(width, height, 0.01);
-	translate([0,0,0.61]) spacer(false);
+	translate([0,0,-3.6]) spacer(true);
+	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.01);
+	translate([0,0,3.61]) rotate([0,180,0]) spacer(false);
 }
 
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) {
 		stator();
-		translate([0,0,2]) meshRetainer();
 	}
-	translate([0,0,5.15 + 0.45]) diaphragm();
-	translate([0,0,12 + 0.45]) rotate([0,180,0]) {
+	translate([0,0,6]) diaphragm();
+	translate([0,0,12.1]) rotate([0,180,0]) {
 		stator();
-		translate([0,0,2]) meshRetainer();
 	}
 }
 
@@ -364,21 +369,9 @@ module innerRing() color([1,0,0]) {
 }
 
 module meshFormTool() {
-	inset = 3*2;
-	
-	union() {
-		basicProfile(primaryWidth, primaryHeight, 6);
-		hull() {
-			translate([0,0,6])basicProfile(primaryWidth, primaryHeight, 0.00001);
-			translate([0,0,6+10]) basicProfile(primaryWidth+inset, primaryHeight+inset, 0.000001);
-		}
-	}
-	
 	difference() {
-		basicProfile(primaryWidth+20, primaryHeight+20, 5);
-		translate([0,0,-0.5]) basicProfile(primaryWidth+2, primaryHeight+2, 5+1);
-		
-		translate([0,0,4]) basicProfile(primaryWidth+inset, primaryHeight+inset, 2);
+		basicProfile(primaryWidth+6 - 2, primaryHeight+6 - 2, 5);
+		translate([0,0,-0.5]) basicProfile(primaryWidth, primaryHeight, 5+1);
 	}
 }
 
@@ -394,7 +387,6 @@ difference () {
 
 		// 3d printed
 		if (part == 1) stator();		// x4
-		if (part == 2) meshRetainer();	// x4
 		if (part == 3) spacer(false);		// x2
 		if (part == 4) spacer(true);		// x2
 		if (part == 5) dustSpacer();		// x8
