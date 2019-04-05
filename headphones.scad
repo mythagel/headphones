@@ -167,8 +167,8 @@ module spacer(slot) color([1,0,0]) {
 		thickness = 0.4;
 		
 		difference() {
-			basicProfile(outerWidth - 0.1, outerHeight - 0.1, 4);
-			translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 4+1);
+			basicProfile(outerWidth - 0.1, outerHeight - 0.1, 3);
+			translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
 		}
 	}
 }
@@ -376,7 +376,7 @@ module meshFormTool() {
 	}
 }
 
-part = 1;
+part = 0;
 
 difference () {
 	union() {
