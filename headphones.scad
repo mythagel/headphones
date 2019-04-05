@@ -139,7 +139,7 @@ module stator() color([1,0,0]) {
 	if (false) translate([0,0,6.1]) %basicProfile(primaryWidth+6, primaryHeight+6, 0.5);
 }
 
-module spacer(slot) color([1,0,0]) {
+module spacer(slot) color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 	width = primaryWidth + (outerOffset-1) - 0.1;
 	height = primaryHeight + (outerOffset-1) - 0.1;
 	
@@ -187,9 +187,9 @@ module dustSpacer() color([1,0,0]) {
 module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
-	translate([0,0,-3.6]) spacer(true);
+	translate([0,0,0]) rotate([0,180,0]) spacer(true);
 	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.01);
-	translate([0,0,3.61]) rotate([0,180,0]) spacer(false);
+	translate([0,0,0.1]) spacer(false);
 }
 
 module driver() {
