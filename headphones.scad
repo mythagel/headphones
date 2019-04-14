@@ -149,11 +149,6 @@ module spacer(slot) color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
 		
-		if (slot) translate([0,0,0.6-0.4]) difference() {
-			slotOffset = 0.6*2;
-			basicProfile((width - inset/2) + slotOffset, (height - inset/2) + slotOffset, depth);
-			translate([0,0,-0.5]) basicProfile((width - inset/2) - slotOffset, (height - inset/2) - slotOffset, depth+1);
-		}
 		if (slot) {
 			translate([0,height/2,1.24]) rotate([-90,0,0]) cylinder(r=0.6*2, h=4, center=true, $fn=6);
 		}
