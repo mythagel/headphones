@@ -74,7 +74,7 @@ module basicProfile(x, y, height) {
 	}
 }
 
-primaryWidth = 50;
+primaryWidth = 60;
 primaryHeight = primaryWidth * 1.618;
 outerOffset = 8;
 
