@@ -366,8 +366,8 @@ module innerRing() color([1,0,0]) {
 
 module meshFormTool() {
 	difference() {
-		basicProfile(primaryWidth+6 - 2, primaryHeight+6 - 2, 5);
-		translate([0,0,-0.5]) basicProfile(primaryWidth, primaryHeight, 5+1);
+		basicProfile(primaryWidth+6 - 3, primaryHeight+6 - 3, 5);
+		translate([0,0,-0.5]) basicProfile(primaryWidth-3, primaryHeight-3, 5+1);
 	}
 }
 
