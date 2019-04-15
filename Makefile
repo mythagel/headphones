@@ -1,13 +1,10 @@
-all: stator.stl spacer.stl spacer_1.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl meshFormTool.stl fixedHeadbandBase.stl
+all: stator.stl spacer.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl meshFormTool.stl fixedHeadbandBase.stl
 
 stator.stl: headphones.scad
 	openscad --render -o stator.stl -D part=1 headphones.scad
 
 spacer.stl: headphones.scad
 	openscad --render -o spacer.stl -D part=3 headphones.scad
-
-spacer_1.stl: headphones.scad
-	openscad --render -o spacer_1.stl -D part=4 headphones.scad
 
 dustSpacer.stl: headphones.scad
 	openscad --render -o dustSpacer.stl -D part=5 headphones.scad

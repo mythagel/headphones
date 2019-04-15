@@ -139,7 +139,7 @@ module stator() color([1,0,0]) {
 	if (false) translate([0,0,6.1]) %basicProfile(primaryWidth+6, primaryHeight+6, 0.5);
 }
 
-module spacer(slot) color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
+module spacer() color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 	width = primaryWidth + (outerOffset-1) - 0.1;
 	height = primaryHeight + (outerOffset-1) - 0.1;
 	
@@ -148,10 +148,6 @@ module spacer(slot) color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 	translate([0,0,3]) difference() {
 		basicProfile(width, height, depth);
 		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
-		
-		if (slot) {
-			translate([0,height/2,1.24]) rotate([-90,0,0]) cylinder(r=0.6*2, h=4, center=true, $fn=6);
-		}
 	}
 
 	// meshRetainer
@@ -182,9 +178,9 @@ module dustSpacer() color([1,0,0]) {
 module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
-	translate([0,0,0]) rotate([0,180,0]) spacer(true);
+	translate([0,0,0]) rotate([0,180,0]) spacer();
 	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.01);
-	translate([0,0,0.1]) spacer(false);
+	translate([0,0,0.1]) spacer();
 }
 
 module driver() {
@@ -383,8 +379,7 @@ difference () {
 
 		// 3d printed
 		if (part == 1) stator();		// x4
-		if (part == 3) spacer(false);		// x2
-		if (part == 4) spacer(true);		// x2
+		if (part == 3) spacer();		// x4
 		if (part == 5) dustSpacer();		// x8
 		if (part == 6) innerRing();		// x2
 		if (part == 15) headbandBase();	// x2
