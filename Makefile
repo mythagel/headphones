@@ -1,4 +1,4 @@
-all: stator.stl spacer.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl meshFormTool.stl fixedHeadbandBase.stl
+all: stator.stl spacer.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl meshFormTool.stl fixedHeadbandBase.stl movingTower.stl movingTower_1.stl fixedTower.stl fixedTower_1.stl centerTower.stl
 
 stator.stl: headphones.scad
 	openscad --render -o stator.stl -D part=1 headphones.scad
@@ -23,3 +23,13 @@ fixedHeadbandBase.stl: headphones.scad
 meshFormTool.stl: headphones.scad
 	openscad --render -o meshFormTool.stl -D part=16 headphones.scad
 
+movingTower.stl: mylarTool.scad
+	openscad --render -o movingTower.stl -D part=1 mylarTool.scad
+movingTower_1.stl: mylarTool.scad
+	openscad --render -o movingTower_1.stl -D part=2 mylarTool.scad
+fixedTower.stl: mylarTool.scad
+	openscad --render -o fixedTower.stl -D part=3 mylarTool.scad
+fixedTower_1.stl: mylarTool.scad
+	openscad --render -o fixedTower_1.stl -D part=4 mylarTool.scad
+centerTower.stl: mylarTool.scad
+	openscad --render -o centerTower.stl -D part=5 mylarTool.scad
