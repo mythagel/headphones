@@ -101,9 +101,9 @@ module stator() color([1,0,0]) {
 		}
 		
 		// spacer / meshRetainer slot
-		translate([0,0,1]) difference() {
+		translate([0,0,2]) difference() {
 			inset = 0.5;
-			width = 0.5;
+			width = 1.6;
 			outerWidth = primaryWidth + outerOffset - (inset*2);
 			outerHeight = primaryHeight + outerOffset - (inset*2);
 			basicProfile(outerWidth, outerHeight, depth);
@@ -159,7 +159,7 @@ module spacer(slot) color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 		inset = 0.5;
 		outerWidth = primaryWidth + outerOffset - (inset * 2);
 		outerHeight = primaryHeight + outerOffset - (inset * 2);
-		thickness = 0.4;
+		thickness = 1.5;
 		
 		difference() {
 			basicProfile(outerWidth - 0.1, outerHeight - 0.1, 3);
