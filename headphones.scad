@@ -74,7 +74,7 @@ module basicProfile(x, y, height) {
 	}
 }
 
-primaryWidth = 60;
+primaryWidth = 64;
 primaryHeight = primaryWidth * 1.618;
 outerOffset = 8;
 
@@ -145,21 +145,32 @@ module spacer() color([1,0,0]) translate([0,0,3.6]) rotate([0,180,0]) {
 	
 	depth = 0.6;
 	inset = 7;
-	translate([0,0,3]) difference() {
-		basicProfile(width, height, depth);
-		translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
-	}
+	difference() {
+		union() {
+			translate([0,0,3]) difference() {
+				basicProfile(width, height, depth);
+				translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
+			}
 
-	// meshRetainer
-	union() {
-		inset = 0.5;
-		outerWidth = primaryWidth + outerOffset - (inset * 2);
-		outerHeight = primaryHeight + outerOffset - (inset * 2);
-		thickness = 1.5;
+			// meshRetainer
+			union() {
+				inset = 0.5;
+				outerWidth = primaryWidth + outerOffset - (inset * 2);
+				outerHeight = primaryHeight + outerOffset - (inset * 2);
+				thickness = 1.5;
+				
+				difference() {
+					basicProfile(outerWidth - 0.1, outerHeight - 0.1, 3);
+					translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
+				}
+			}
+		}
 		
-		difference() {
-			basicProfile(outerWidth - 0.1, outerHeight - 0.1, 3);
-			translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 3+1);
+		// Slot (experimental)
+		slotDepth = 0.4;
+		translate([0,0,3.6 - slotDepth]) difference() {
+			basicProfile(width - 0.8, height - 0.8, 2);
+			translate([0,0,-0.5]) basicProfile((width - inset/2) + 1.2, (height - inset/2) + 1.2, 2+1);
 		}
 	}
 }
