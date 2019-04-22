@@ -4,7 +4,9 @@
 $fn=96;
 
 towerHeight = 30;
-threadedRodD = 8;
+
+// OD = 7.9, ID = 6.8, thread depth = 0.55
+threadedRodD = 6.8+0.6;
 rodOffset = 5;
 
 module tower() {
@@ -64,4 +66,14 @@ if (part == 0) {
 	
 	rotate([0,0,45]) translate([0,150,(towerHeight/2)-rodOffset]) rotate([90,0,0]) cylinder(r=threadedRodD/2, h=400);
 	rotate([0,0,-45]) translate([0,150,(towerHeight/2)+rodOffset]) rotate([90,0,0]) cylinder(r=threadedRodD/2, h=400);
+}
+
+if (part == 6) {
+	translate([12,12]) rotate([0,0,90]) fixedTower(false);
+	translate([-12,-12]) rotate([0,0,-90]) movingTower(false);
+	
+	translate([-12,12]) rotate([0,0,180]) fixedTower(true);
+	translate([12,-12]) rotate([0,0,0]) movingTower(true);
+	
+	centerTower();
 }
