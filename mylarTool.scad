@@ -3,29 +3,32 @@
 // turn rods == greater distance == stretch
 $fn=96;
 
-towerHeight = 30;
+towerHeight = 24;
 
 // OD = 7.9, ID = 6.8, thread depth = 0.55
 threadedRodD = 6.8+0.6;
 rodOffset = 5;
 
 module tower() {
-	hull() {
-		rotate([0,0,90]) translate([-16, -16, towerHeight]) hull() {
-			n = 22;
-			r = 8/2;
-			translate([n,n]) sphere(r=r);
-			translate([n,0]) sphere(r=r);
-			translate([0,n]) sphere(r=r);
+	id = 50 + 1;
+	od = 50 + 20;
+	
+	translate([-42, 42, 0]) intersection() {
+		difference() {
+			union() {
+				translate([0,0,towerHeight-4]) cylinder(r1=od, r2=od-4, h=4);
+				cylinder(r=od, h=towerHeight-4);
+			}
+			translate([0,0,-0.5]) cylinder(r=id, h=towerHeight+1);
 		}
-		cylinder(r=10, h=towerHeight);
+		translate([0,-100,-0.5]) cube([100,100,100]);
 	}
 }
 
 module fixedTower(a) {
 	difference() {
 		tower();
-		translate([0,0,a?(towerHeight/2)-rodOffset:(towerHeight/2)+rodOffset]) rotate([0,0,45]) rotate([90,0,0]) translate([0,0,-42]) cylinder(r=(threadedRodD+1)/2, h=50);
+		translate([0,0,a?(towerHeight/2)-rodOffset:(towerHeight/2)+rodOffset]) rotate([0,0,45]) rotate([90,0,0]) translate([0,0,-44]) cylinder(r=(threadedRodD+1)/2, h=50);
 	}
 }
 
@@ -39,13 +42,15 @@ module movingTower(a) {
 module centerTower() {
 	difference() {
 		cylinder(r=50, h=towerHeight);
-		translate([0,0,-0.5]) cylinder(r=40, h=towerHeight+1);
+		translate([0,0,-0.5]) cylinder(r=40, h=towerHeight-1);
 		translate([0,0,(towerHeight/2)-rodOffset]) rotate([0,0,45]) rotate([90,0,0]) translate([0,0,-100]) cylinder(r=(threadedRodD+1)/2, h=200);
 		translate([0,0,(towerHeight/2)+rodOffset]) rotate([0,0,-45]) rotate([90,0,0]) translate([0,0,-100]) cylinder(r=(threadedRodD+1)/2, h=200);
+		
+		translate([0,0,-0.5]) cylinder(r=64/2, h=towerHeight+1);
 	}
 }
 
-part = 0;
+part = 6;
 
 if (part == 1) fixedTower(false);
 if (part == 2) fixedTower(true);
@@ -69,11 +74,12 @@ if (part == 0) {
 }
 
 if (part == 6) {
-	translate([12,12]) rotate([0,0,90]) fixedTower(false);
-	translate([-12,-12]) rotate([0,0,-90]) movingTower(false);
+	off = 42.5;
+	translate([off,off]) rotate([0,0,90]) fixedTower(false);
+	translate([-off,-off]) rotate([0,0,-90]) movingTower(false);
 	
-	translate([-12,12]) rotate([0,0,180]) fixedTower(true);
-	translate([12,-12]) rotate([0,0,0]) movingTower(true);
+	translate([-off,off]) rotate([0,0,180]) fixedTower(true);
+	translate([off,-off]) rotate([0,0,0]) movingTower(true);
 	
-	centerTower();
+	translate([0,0,towerHeight]) rotate([180,0,0]) centerTower();
 }
