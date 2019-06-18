@@ -371,7 +371,14 @@ module meshFormTool() {
 	}
 }
 
-part = 0;
+module meshDrillPattern() {
+	projection() difference() {
+		basicProfile(primaryWidth, primaryHeight, 1);
+		translate([0,0,-0.01])stator();
+	}
+}
+
+part = 18;
 
 difference () {
 	union() {
@@ -405,6 +412,9 @@ difference () {
 		if (part == 12) diaphragm();
 		if (part == 13) earspeaker();
 		if (part == 14) driver();
+			
+		// Input to additional processes
+		if (part == 18) meshDrillPattern();
 	}
 	//translate([0, 0, -500]) cube([1000,1000,1000]);
 }

@@ -50,7 +50,18 @@ module centerTower() {
 	}
 }
 
-part = 6;
+
+module reinforcement() {
+	translate([-42, 42, -5/2]) intersection() {
+		difference() {
+			cylinder(r=70-1, h=5);
+			translate([0,0,-0.5]) cylinder(r=70-4, h=5+1);
+		}
+		translate([0,-100,-0.5]) cube([100,100,100]);
+	}
+}
+
+part = 0;
 
 if (part == 1) fixedTower(false);
 if (part == 2) fixedTower(true);
@@ -83,3 +94,6 @@ if (part == 6) {
 	
 	translate([0,0,towerHeight]) rotate([180,0,0]) centerTower();
 }
+
+if (part == 7) translate([42.5,42.5, (towerHeight/2)+rodOffset]) rotate([0,0,90]) reinforcement();
+if (part == 8) translate([-42.5,42.5, (towerHeight/2)-rodOffset]) rotate([0,0,180]) reinforcement();
