@@ -77,10 +77,15 @@ module basicProfile(x, y, height) {
 primaryWidth = 64;
 primaryHeight = primaryWidth * 1.618;
 outerOffset = 8;
+meshInset = 3;
 
-module stator() color([1,0,0]) {
+module stator() {
 	depth = 6;
-	verticalInset = 0.6+0.4;
+	spacerDepth = 0.6;
+	
+	// TODO this must be ACCURATE!
+	// The inset depth determines the real spacer distance
+	meshDepth = 1;
 	
 	difference() {
 		union() {
@@ -100,23 +105,17 @@ module stator() color([1,0,0]) {
 			}
 		}
 		
-		// spacer / meshRetainer slot
-		translate([0,0,1]) difference() {
+		// spacer vertical inset
+		translate([0,0,depth - spacerDepth]) union() {
 			inset = 0.5;
-			width = 2.1;
-			outerWidth = primaryWidth + outerOffset - (inset*2);
-			outerHeight = primaryHeight + outerOffset - (inset*2);
+			outerWidth = primaryWidth;
+			outerHeight = primaryHeight;
 			basicProfile(outerWidth, outerHeight, depth);
-			translate([0,0,-0.5]) basicProfile(outerWidth - (width*2), outerHeight - (width*2), depth+1);
 		}
 		
-		// Mesh & spacer vertical inset
-		translate([0,0,depth - verticalInset]) union() {
-			inset = 0.5;
-			width = 0.5;
-			outerWidth = primaryWidth + outerOffset - (inset*2);
-			outerHeight = primaryHeight + outerOffset - (inset*2);
-			basicProfile(outerWidth - (width*2), outerHeight - (width*2), depth);
+		// mesh inset
+		translate([0,0,(depth-spacerDepth)-meshDepth]) union() {
+			basicProfile(primaryWidth-(meshInset*2)+0.3, primaryHeight-(meshInset*2)+0.3, meshDepth+0.5);
 		}
 		
 		// opening for diaphragm wire
@@ -124,11 +123,11 @@ module stator() color([1,0,0]) {
 
 		// opening for stator wire
 		intersection() {
-			translate([0,0,-0.5]) difference() {
-				outerWidth = primaryWidth + outerOffset - 2;
-				outerHeight = primaryHeight + outerOffset - 2;
+			translate([0,0,-2]) difference() {
+				outerWidth = primaryWidth + outerOffset - 3;
+				outerHeight = primaryHeight + outerOffset - 3;
 				basicProfile(outerWidth, outerHeight, depth+1);
-				translate([0,0,-0.5]) basicProfile(primaryWidth + 1.45, primaryHeight + 1.45, depth+1+1);
+				translate([0,0,-0.5]) basicProfile(primaryWidth - 1.45, primaryHeight - 1.45, depth+1+1);
 			}
 			
 			rotate([0,0,7.5]) translate([0,100,0]) cube([4, 200, 16], center=true);
@@ -136,36 +135,7 @@ module stator() color([1,0,0]) {
 	}
 
     // mesh
-	if (false) translate([0,0,6.1]) %basicProfile(primaryWidth+6, primaryHeight+6, 0.5);
-}
-
-module spacer() color([1,0,0]) translate([0,0,4.6]) rotate([0,180,0]) {
-	width = primaryWidth + (outerOffset-1) - 0.1;
-	height = primaryHeight + (outerOffset-1) - 0.1;
-	
-	depth = 0.6;
-	inset = 7;
-	difference() {
-		union() {
-			translate([0,0,4]) difference() {
-				basicProfile(width, height, depth);
-				translate([0,0,-0.5]) basicProfile(width - inset, height - inset, depth+1);
-			}
-
-			// meshRetainer
-			union() {
-				inset = 0.5;
-				outerWidth = primaryWidth + outerOffset - (inset * 2);
-				outerHeight = primaryHeight + outerOffset - (inset * 2);
-				thickness = 2;
-				
-				difference() {
-					basicProfile(outerWidth - 0.1, outerHeight - 0.1, 4);
-					translate([0,0,-0.5]) basicProfile(outerWidth-(thickness*2), outerHeight-(thickness*2), 4+1);
-				}
-			}
-		}
-	}
+	if (false) translate([0,0,(depth-spacerDepth)-meshDepth]) %basicProfile(primaryWidth-(meshInset*2), primaryHeight-(meshInset*2), 1);
 }
 
 module dustSpacer() color([1,0,0]) {
@@ -182,17 +152,15 @@ module dustSpacer() color([1,0,0]) {
 module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
-	translate([0,0,0]) rotate([0,180,0]) spacer();
 	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.01);
-	translate([0,0,0.1]) spacer();
 }
 
 module driver() {
-	translate([0,0,0]) rotate([0,0,0]) {
+	translate([0,0,0]) rotate([0,0,0]) color([1,0,0]) {
 		stator();
 	}
 	translate([0,0,6]) diaphragm();
-	translate([0,0,12.1]) rotate([0,180,0]) {
+	translate([0,0,12.1]) rotate([0,180,0]) color([1,0,0]) {
 		stator();
 	}
 }
@@ -371,10 +339,17 @@ module meshFormTool() {
 	}
 }
 
-module meshDrillPattern() {
-	projection() difference() {
-		basicProfile(primaryWidth, primaryHeight, 1);
-		translate([0,0,-0.01])stator();
+// perforated metal
+module meshDrillPattern(outline) {
+	projection() {
+		if (outline) {
+			basicProfile(primaryWidth-(meshInset*2), primaryHeight-(meshInset*2), 1);
+		} else {
+			difference() {
+				basicProfile(primaryWidth-(meshInset*4), primaryHeight-(meshInset*4), 1);
+				translate([0,0,-0.01]) stator();
+			}
+		}
 	}
 }
 
@@ -390,7 +365,6 @@ difference () {
 
 		// 3d printed
 		if (part == 1) stator();		// x4
-		if (part == 3) spacer();		// x4
 		if (part == 5) dustSpacer();		// x8
 		if (part == 6) innerRing();		// x2
 		if (part == 15) headbandBase();	// x2
@@ -414,7 +388,8 @@ difference () {
 		if (part == 14) driver();
 			
 		// Input to additional processes
-		if (part == 18) meshDrillPattern();
+		if (part == 18) meshDrillPattern(false);
+		if (part == 19) meshDrillPattern(true);
 	}
 	//translate([0, 0, -500]) cube([1000,1000,1000]);
 }
