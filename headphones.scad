@@ -85,7 +85,7 @@ module stator() {
 	
 	// TODO this must be ACCURATE!
 	// The inset depth determines the real spacer distance
-	meshDepth = 1;
+	meshDepth = 0.61;
 	
 	difference() {
 		union() {
@@ -135,7 +135,7 @@ module stator() {
 	}
 
     // mesh
-	if (false) translate([0,0,(depth-spacerDepth)-meshDepth]) %basicProfile(primaryWidth-(meshInset*2), primaryHeight-(meshInset*2), 1);
+	if (false) translate([0,0,(depth-spacerDepth)-meshDepth]) %basicProfile(primaryWidth-(meshInset*2), primaryHeight-(meshInset*2), meshDepth);
 }
 
 module dustSpacer() color([1,0,0]) {
@@ -152,7 +152,8 @@ module dustSpacer() color([1,0,0]) {
 module diaphragm() {
 	width = primaryWidth;
 	height = primaryHeight;
-	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.01);
+	// 15um oven bag (Glad brand)
+	if (true) translate([0,0,0.1]) %basicProfile(width, height, 0.015);
 }
 
 module driver() {
