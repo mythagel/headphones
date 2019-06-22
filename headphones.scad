@@ -78,14 +78,13 @@ primaryWidth = 64;
 primaryHeight = primaryWidth * 1.618;
 outerOffset = 8;
 meshInset = 3;
+// TODO this must be ACCURATE!
+// The inset depth determines the real spacer distance
+meshDepth = 0.61;
 
 module stator() {
 	depth = 6;
 	spacerDepth = 0.6;
-	
-	// TODO this must be ACCURATE!
-	// The inset depth determines the real spacer distance
-	meshDepth = 0.61;
 	
 	difference() {
 		union() {
@@ -159,10 +158,12 @@ module diaphragm() {
 module driver() {
 	translate([0,0,0]) rotate([0,0,0]) color([1,0,0]) {
 		stator();
+		translate([0,0,6-(0.6+0.61)]) meshPrototype();
 	}
 	translate([0,0,6]) diaphragm();
 	translate([0,0,12.1]) rotate([0,180,0]) color([1,0,0]) {
 		stator();
+		translate([0,0,6-(0.6+0.61)]) meshPrototype();
 	}
 }
 
@@ -347,7 +348,24 @@ module meshDrillPattern(outline) {
 	}
 }
 
-part = 18;
+module meshPrototype() {
+	linear_extrude(height = meshDepth, convexity = 10) difference() {
+		meshDrillPattern(true);
+		
+		intersection() {
+			meshDrillPattern(false);
+			n = 30;
+			for (y = [-n : n]) {
+				for (x = [-n : n]) {
+					y_off = (x % 2) == 0 ? ((1.5*1.27)/2) : 0;
+					translate([x*(1.5*1.27), (y*(1.5*1.27)) + y_off]) circle(r=1.5/2);
+				}
+			}
+		}
+	}
+}
+
+part = 0;
 
 difference () {
 	union() {
@@ -364,6 +382,8 @@ difference () {
 		if (part == 15) headbandBase();	// x2
 		if (part == 17) fixedHeadbandBase();	// x2
 
+		if (part == 16) meshPrototype();
+		
 		// wood
 		if (part == 7) cans();			// x2
 			
