@@ -1,4 +1,4 @@
-all: stator.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl fixedHeadbandBase.stl movingTower.stl movingTower_1.stl fixedTower.stl fixedTower_1.stl centerTower.stl fixedTower_rebar.stl fixedTower_1_rebar.stl meshDrillPattern.svg meshDrillPattern_1.svg
+all: stator.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl fixedHeadbandBase.stl movingTower.stl movingTower_1.stl fixedTower.stl fixedTower_1.stl centerTower.stl fixedTower_rebar.stl fixedTower_1_rebar.stl meshDrillPattern.svg meshDrillPattern_1.svg meshDrill.nc meshCut.nc
 
 stator.stl: headphones.scad
 	openscad --render -o stator.stl -D part=1 headphones.scad
@@ -36,3 +36,8 @@ meshDrillPattern.svg: headphones.scad
 	openscad --render -o meshDrillPattern.svg -D part=18 headphones.scad
 meshDrillPattern_1.svg: headphones.scad
 	openscad --render -o meshDrillPattern_1.svg -D part=19 headphones.scad
+
+meshDrill.nc: meshDrillPattern.svg
+	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | nc_svgpath -f50 | nc_contour_drill -d 1.5 -o 1.27 -z 1 -f39 -t2 > meshDrill.nc
+meshCut.nc: meshDrillPattern_1.svg
+	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | nc_svgpath -f50 > meshCut.nc
