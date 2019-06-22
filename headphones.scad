@@ -332,13 +332,6 @@ module innerRing() color([1,0,0]) {
 	}
 }
 
-module meshFormTool() {
-	difference() {
-		basicProfile(primaryWidth+6 - 3, primaryHeight+6 - 3, 5);
-		translate([0,0,-0.5]) basicProfile(primaryWidth-3, primaryHeight-3, 5+1);
-	}
-}
-
 // perforated metal
 module meshDrillPattern(outline) {
 	projection() {
@@ -369,8 +362,6 @@ difference () {
 		if (part == 6) innerRing();		// x2
 		if (part == 15) headbandBase();	// x2
 		if (part == 17) fixedHeadbandBase();	// x2
-
-		if (part == 16) meshFormTool();
 
 		// wood
 		if (part == 7) cans();			// x2
