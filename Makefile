@@ -51,4 +51,4 @@ meshDrill.off: meshDrill.nc
 	nc_model --stock stock.off --tool 1 < meshDrill.nc > meshDrill.off
 
 meshCut.off: meshCut.nc meshDrill.off
-	nc_model --stock drill.off --tool 4 < meshCut.nc > cut.off
+	nc_model --stock meshDrill.off --tool 4 < meshCut.nc > meshCut.off
