@@ -46,7 +46,9 @@ meshCut.nc: meshDrillPattern_1.svg
 		nc_svgpath -f50 | \
 		nc_contour_profile -r 2 -z -1.8 -f 50 -d -2 -t 1 > meshCut.nc
 
-simulate: meshDrill.nc meshCut.nc
+meshDrill.off: meshDrill.nc
 	nc_stock --box -X -50 -Y -50 -Z -1.6 -x 50 -y 50 -z 0 > stock.off
-	nc_model --stock stock.off --tool 1 < meshDrill.nc > drill.off
+	nc_model --stock stock.off --tool 1 < meshDrill.nc > meshDrill.off
+
+meshCut.off: meshCut.nc meshDrill.off
 	nc_model --stock drill.off --tool 4 < meshCut.nc > cut.off
