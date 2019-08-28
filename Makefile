@@ -38,6 +38,15 @@ meshDrillPattern_1.svg: headphones.scad
 	openscad --render -o meshDrillPattern_1.svg -D part=19 headphones.scad
 
 meshDrill.nc: meshDrillPattern.svg
-	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | nc_svgpath -f50 | nc_contour_drill -d 1.5 -o 1.27 -z 1 -f39 -t2 > meshDrill.nc
+	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
+		nc_svgpath -f50 | \
+		nc_contour_drill -d 1.5 -o 1.27 -z -1.8 -f39 -t2 > meshDrill.nc
 meshCut.nc: meshDrillPattern_1.svg
-	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | nc_svgpath -f50 > meshCut.nc
+	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
+		nc_svgpath -f50 | \
+		nc_contour_profile -r 2 -z -1.8 -f 50 -d -2 -t 1 > meshCut.nc
+
+simulate: meshDrill.nc meshCut.nc
+	nc_stock --box -X -50 -Y -50 -Z -1.6 -x 50 -y 50 -z 0 > stock.off
+	nc_model --stock stock.off --tool 1 < meshDrill.nc > drill.off
+	nc_model --stock drill.off --tool 4 < meshCut.nc > cut.off
