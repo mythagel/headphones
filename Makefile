@@ -40,11 +40,13 @@ meshDrillPattern_1.svg: headphones.scad
 meshDrill.nc: meshDrillPattern.svg
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_drill -d 1.5 -o 1.27 -z -1.8 -f39 -t2 > meshDrill.nc
+		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -2 --feedrate 39 --retract_z 2 | \
+		nc_rename_axis -sXY > meshDrill.nc
 meshCut.nc: meshDrillPattern_1.svg
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_profile -r 2 -z -1.8 -f 50 -d -2 -t 1 > meshCut.nc
+		nc_contour_profile --tool_r 2 --cut_z -1 --feedrate 50 --stepdown -2 --retract_z 2 | \
+		nc_rename_axis -sXY > meshCut.nc
 
 meshDrill.off: meshDrill.nc
 	nc_stock --box -X -50 -Y -50 -Z -1.6 -x 50 -y 50 -z 0 > stock.off
@@ -52,3 +54,5 @@ meshDrill.off: meshDrill.nc
 
 meshCut.off: meshCut.nc meshDrill.off
 	nc_model --stock meshDrill.off --tool 4 < meshCut.nc > meshCut.off
+
+simulation: meshDrill.off meshCut.off
