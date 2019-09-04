@@ -37,11 +37,16 @@ meshDrillPattern.svg: headphones.scad
 meshDrillPattern_1.svg: headphones.scad
 	openscad --render -o meshDrillPattern_1.svg -D part=19 headphones.scad
 
+# Stock dimensions: 110 x 70 x 0.6
+
+# Drill tool: 118deg 1.5mm drill
 meshDrill.nc: meshDrillPattern.svg
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
 		nc_svgpath -f50 | \
 		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -2 --feedrate 39 --retract_z 2 | \
 		nc_rename_axis -sXY > meshDrill.nc
+
+# Cut tool: 4mm carbide endmill
 meshCut.nc: meshDrillPattern_1.svg
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
@@ -49,7 +54,7 @@ meshCut.nc: meshDrillPattern_1.svg
 		nc_rename_axis -sXY > meshCut.nc
 
 meshDrill.off: meshDrill.nc
-	nc_stock --box -X -50 -Y -50 -Z -1.6 -x 50 -y 50 -z 0 > stock.off
+	nc_stock --box -X -55 -Y -35 -Z -0.6 -x 55 -y 35 -z 0 > stock.off
 	nc_model --stock stock.off --tool 1 < meshDrill.nc > meshDrill.off
 
 meshCut.off: meshCut.nc meshDrill.off
