@@ -1,4 +1,4 @@
-all: stator.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl fixedHeadbandBase.stl movingTower.stl movingTower_1.stl fixedTower.stl fixedTower_1.stl centerTower.stl fixedTower_rebar.stl fixedTower_1_rebar.stl meshDrillPattern.svg meshDrillPattern_1.svg meshDrill.nc meshCut.nc
+all: stator.stl dustSpacer.stl innerRing.stl cans.off headbandBase.stl fixedHeadbandBase.stl movingTower.stl movingTower_1.stl fixedTower.stl fixedTower_1.stl centerTower.stl fixedTower_rebar.stl fixedTower_1_rebar.stl meshDrillPattern.svg meshDrillPattern_1.svg meshDrill.nc meshCut.nc cans_a.nc cans_b.nc
 
 stator.stl: headphones.scad
 	openscad --render -o stator.stl -D part=1 headphones.scad
@@ -38,23 +38,36 @@ meshDrillPattern_1.svg: headphones.scad
 	openscad --render -o meshDrillPattern_1.svg -D part=19 headphones.scad
 
 # Stock dimensions: 110 x 70 x 0.6
+# Machined in a stack of 4 (stators for 2 drivers)
 
 # Drill tool: 118deg 1.5mm drill
-meshDrill.nc: meshDrillPattern.svg
+meshDrill.nc: meshDrillPattern.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -2 --feedrate 39 --retract_z 2 | \
+		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -4 --feedrate 39 --retract_z 1 | \
 		nc_rename_axis -sXY > meshDrill.nc
 
 # Cut tool: 4mm carbide endmill
-meshCut.nc: meshDrillPattern_1.svg
+meshCut.nc: meshDrillPattern_1.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_profile --tool_r 2 --cut_z -1 --feedrate 50 --stepdown -2 --retract_z 2 | \
+		nc_contour_profile --tool_r 2 --cut_z -3 --feedrate 160 --stepdown -1 --retract_z 1 | \
 		nc_rename_axis -sXY > meshCut.nc
 
+cans_a.off: cans.off Makefile
+	nc_transform --model --translate_z -19.0001 < cans.off > cans_a.off
+cans_a.nc: cans_a.off Makefile
+	nc_slice -f50 --stepdown 1 --offset 5 < cans_a.off | \
+		nc_contour_offset -r 2 -f 50 --retract_z 1 > cans_a.nc
+
+cans_b.off: cans.off Makefile
+	nc_transform --model --rotate_y 180 < cans.off > cans_b.off
+cans_b.nc: cans_b.off Makefile
+	nc_slice -f50 --stepdown 1 --offset 5 < cans_b.off | \
+		nc_contour_offset -r 2 -f 50 --retract_z 1 > cans_b.nc
+
 meshDrill.off: meshDrill.nc
-	nc_stock --box -X -55 -Y -35 -Z -0.6 -x 55 -y 35 -z 0 > stock.off
+	nc_stock --box -X -55 -Y -35 -Z -2.4 -x 55 -y 35 -z 0 > stock.off # 0.6 x 4 stacked
 	nc_model --stock stock.off --tool 1 < meshDrill.nc > meshDrill.off
 
 meshCut.off: meshCut.nc meshDrill.off
