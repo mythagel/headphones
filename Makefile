@@ -37,22 +37,22 @@ meshDrillPattern.svg: headphones.scad
 meshDrillPattern_1.svg: headphones.scad
 	openscad --render -o meshDrillPattern_1.svg -D part=19 headphones.scad
 
-# Stock dimensions: 110 x 70 x 0.6
+# Stock dimensions: 110 x 70 x 0.5 (aluminium)
 # Machined in a stack of 4 (stators for 2 drivers)
 
 # Drill tool: 118deg 1.5mm drill, 2800rpm
+# Tip length 0.451
 meshDrill.nc: meshDrillPattern.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -3.5 --feedrate 36 --retract_z 1 | \
+		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -2.5 --feedrate 152 --retract_z 1 | \
 		nc_rename_axis -sXY > meshDrill.nc
 
 # Cut tool: 4mm carbide endmill, 2800rpm
 meshCut.nc: meshDrillPattern_1.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_profile --tool_r 2 --cut_z -3 --feedrate 208 --stepdown -1 --retract_z 1 | \
-		nc_linear_ramp | \
+		nc_contour_profile --tool_r 2 --cut_z -2.1 --feedrate 254 --stepdown -0.3 --retract_z 1 --spiral | \
 		nc_rename_axis -sXY > meshCut.nc
 
 cans_a.off: cans.off Makefile

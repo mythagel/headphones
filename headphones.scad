@@ -22,7 +22,7 @@ offsetAngle = 12;	// ears still cleared by pads at 12deg
 earpadAngle = 8;
 
 headbandWireDiameter = 3;
-headbandWidth = 64;
+headbandWidth = 72;
 
 // mylar to check design fits material
 //translate([0,0,1]) %cube([55, 55*1.618, 0.0001], center=true);
@@ -221,7 +221,7 @@ threaded over the wire. This is the sliding part */
 module headbandBase() color([1,0,0]) {
 	h = 12;
 	leatherScrewWidth = 35;
-	inset = 0.2;
+	inset = 0.0;
 	clearance = 1;
 	
 	difference() {
@@ -255,7 +255,7 @@ module headbandBase() color([1,0,0]) {
 // Fixed part
 module fixedHeadbandBase() color([1,0,0]) {
 	h = 12;
-	clearance = -0.1;
+	clearance = 0.1;
 	
 	difference() {
 		hull() {
