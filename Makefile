@@ -45,15 +45,17 @@ meshDrillPattern_1.svg: headphones.scad
 meshDrill.nc: meshDrillPattern.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -2.5 --feedrate 152 --retract_z 1 | \
+		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -5 --feedrate 152 --retract_z 2 | \
 		nc_rename_axis -sXY > meshDrill.nc
+	echo "M2" >> meshDrill.nc
 
 # Cut tool: 4mm carbide endmill, 2800rpm
 meshCut.nc: meshDrillPattern_1.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_profile --tool_r 2 --cut_z -2.1 --feedrate 254 --stepdown -0.3 --retract_z 1 --spiral | \
+		nc_contour_profile --tool_r 2 --cut_z -3.5 --feedrate 254 --stepdown -0.3 --retract_z 2 --spiral | \
 		nc_rename_axis -sXY > meshCut.nc
+	echo "M2" >> meshCut.nc
 
 cans_a.off: cans.off Makefile
 	nc_transform --model --translate_z -19.0001 < cans.off > cans_a.off
