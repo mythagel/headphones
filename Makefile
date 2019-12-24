@@ -53,7 +53,7 @@ meshDrill.nc: meshDrillPattern.svg Makefile
 meshCut.nc: meshDrillPattern_1.svg Makefile
 	xmllint --xpath "string(/*[name()='svg']/*[name()='path']/@d)" meshDrillPattern_1.svg | \
 		nc_svgpath -f50 | \
-		nc_contour_profile --tool_r 2 --cut_z -3.5 --feedrate 254 --stepdown -0.3 --retract_z 2 --spiral | \
+		nc_contour_profile --tool_r 2 --cut_z -5 --feedrate 254 --stepdown -0.3 --retract_z 2 --spiral | \
 		nc_rename_axis -sXY > meshCut.nc
 	echo "M2" >> meshCut.nc
 
