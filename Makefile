@@ -47,6 +47,7 @@ meshDrill.nc: meshDrillPattern.svg Makefile
 		nc_svgpath -f50 | \
 		nc_contour_drill --drill_d 1.5 --offset 1.27 --drill_z -1.5 --feedrate 36 --retract_z 1.5 | \
 		nc_rename_axis -sXY > meshDrill.nc
+	echo "G0 X0 Y0 Z2" >> meshDrill.nc
 	echo "M2" >> meshDrill.nc
 
 # Cut tool: 4mm carbide endmill, 2800rpm
@@ -55,6 +56,7 @@ meshCut.nc: meshDrillPattern_1.svg Makefile
 		nc_svgpath -f50 | \
 		nc_contour_profile --tool_r 2 --cut_z -1 --feedrate 208 --stepdown -0.3 --retract_z 1.5 | \
 		nc_rename_axis -sXY > meshCut.nc
+	echo "G0 X0 Y0 Z2" >> meshCut.nc
 	echo "M2" >> meshCut.nc
 
 cans_a.off: cans.off Makefile
